@@ -52,3 +52,25 @@ set(PASCAL_SOURCES
 
 add_executable(pascal ${PASCAL_SOURCES})
 target_link_libraries(pascal PRIVATE pscal_core_static Threads::Threads m)
+
+# ---- Install ----------------------------------------------------------------
+# `cmake --install build` puts `pascal` on PATH and ships the examples and the
+# language docs beside it. The FetchContent dep (pscal-core) declares no install
+# rules of its own, so only Pascal's targets are installed here.
+include(GNUInstallDirs)
+install(TARGETS pascal RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/pascal/examples)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/
+        DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/README.md
+        DESTINATION ${CMAKE_INSTALL_DOCDIR})
+
+# ---- Test -------------------------------------------------------------------
+# `ctest` runs the .pas corpus and the compiler regression suite in tests/
+# against the binary just built. The runner picks up PASCAL_BIN from the
+# environment, which CTest points at the freshly built executable.
+enable_testing()
+add_test(NAME pascal_tests COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tests/run.sh)
+set_tests_properties(pascal_tests PROPERTIES
+    ENVIRONMENT "PASCAL_BIN=$<TARGET_FILE:pascal>")

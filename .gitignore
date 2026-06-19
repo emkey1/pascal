@@ -1,3 +1,17 @@
 build/
 *.o
 .DS_Store
+__pycache__/
+
+# Scratch files the test corpus writes into tests/ during a ctest run. The
+# fixtures execute with their cwd set to tests/, so these land beside run.sh.
+tests/edge_input.txt
+tests/readln_test.txt
+tests/async_test_src.txt
+tests/async_test_dst.txt
+tests/src_to_file.txt
+tests/dst_to_file.txt
+tests/headers_test.txt
+tests/write_many_args_test.sav
+tests/write_many_nested_fields.sav
+tests/dostest/

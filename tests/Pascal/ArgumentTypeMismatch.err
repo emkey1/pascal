@@ -1,0 +1,2 @@
+L13: Compiler Error: argument 1 to 'foo' expects type INTEGER but got STRING.
+Compilation failed with errors.
