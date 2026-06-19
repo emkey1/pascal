@@ -226,7 +226,8 @@ void initSymbolSystem(void) {
 #endif
 }
 
-int runProgram(const char *source, const char *programName, const char *frontend_path,
+int runProgram(const char *source, const char *programName, const char *displayName,
+               const char *frontend_path,
                int dump_ast_json_flag, int dump_bytecode_flag, int dump_bytecode_only_flag,
                int no_cache_flag, int verbose_flag) {
     if (globalSymbols == NULL) {
@@ -333,7 +334,8 @@ int runProgram(const char *source, const char *programName, const char *frontend
                                 chunk.count, chunk.constants_count);
                     }
                     if (dump_bytecode_flag) {
-                        const char* disasm_name = programName ? bytecodeDisplayNameForPath(programName) : "CompiledChunk";
+                        const char* disasm_name = displayName ? bytecodeDisplayNameForPath(displayName)
+                                              : (programName ? bytecodeDisplayNameForPath(programName) : "CompiledChunk");
                         disassembleBytecodeChunk(&chunk, disasm_name, procedure_table);
                         if (!dump_bytecode_only_flag) {
                             fprintf(stderr, "\n--- executing Program with VM ---\n");
@@ -346,7 +348,8 @@ int runProgram(const char *source, const char *programName, const char *frontend
                             chunk.count, chunk.constants_count);
                 }
                 if (dump_bytecode_flag) {
-                    const char* disasm_name = programName ? bytecodeDisplayNameForPath(programName) : "CompiledChunk";
+                    const char* disasm_name = displayName ? bytecodeDisplayNameForPath(displayName)
+                                              : (programName ? bytecodeDisplayNameForPath(programName) : "CompiledChunk");
                     disassembleBytecodeChunk(&chunk, disasm_name, procedure_table);
                     if (!dump_bytecode_only_flag) {
                         fprintf(stderr, "\n--- executing Program with VM (cached) ---\n");
@@ -592,6 +595,11 @@ int PSCAL_PASCAL_ENTRY_SYMBOL(int argc, char *argv[]) {
         PAS_RETURN(EXIT_FAILURE);
     }
 
+    // Keep the path exactly as supplied on the command line for the
+    // disassembly banner so it stays repo-relative and machine-independent
+    // (matching the clike/rea frontends, which pass the raw argument). The
+    // canonicalisation below is only for cache keying and reading the file.
+    const char *display_source = programName;
     char* canonical_source_path = canonicalizePath(sourceFile);
     if (canonical_source_path) {
         sourceFile = canonical_source_path;
@@ -670,7 +678,7 @@ int PSCAL_PASCAL_ENTRY_SYMBOL(int argc, char *argv[]) {
     }
 
     // Call runProgram
-    int result = runProgram(effective_source, programName, argv[0], dump_ast_json_flag,
+    int result = runProgram(effective_source, programName, display_source, argv[0], dump_ast_json_flag,
                             dump_bytecode_flag, dump_bytecode_only_flag, no_cache_flag, verbose_flag);
 
     // Restore stderr and conditionally replay

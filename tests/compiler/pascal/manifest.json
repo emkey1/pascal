@@ -323,7 +323,7 @@
       "path": "Tests/compiler/pascal/cases/local_record_store_bytecode.pas",
       "expect": "compile_success",
       "compiler_args": ["--dump-bytecode-only"],
-      "stderr_substring": "LOAD_ELEMENT_VALUE_CONST          0 (flat offset)\n0032    | SET_LOCAL           0 (slot)"
+      "stderr_substring": "LOAD_ELEMENT_VALUE_CONST          0 (flat offset)\n0034    | SET_LOCAL           0 (slot)"
     },
     {
       "id": "for_record_field_control_var",
