@@ -107,16 +107,13 @@ static void pascalHandleSigint(int signo) {
 
 static void pascalInstallSigint(VM *vm) {
     s_sigint_vm = vm;
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigprocmask(SIG_UNBLOCK, &set, NULL);
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = pascalHandleSigint;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sigaction(SIGINT, &sa, NULL);
+    /* iOS owns SIGINT centrally (kept BLOCKED on every thread; a foreground
+     * Ctrl-C is consumed by the tool-runner sigwait catcher -> SIGUSR1 worker
+     * poke -> siglongjmp, plus the VM abort flag this VM polls). Do NOT unblock
+     * SIGINT or install a competing per-frontend handler here -- that reopened
+     * the race that left SIGINT at SIG_DFL and killed the shell. Keeping
+     * s_sigint_vm set is harmless. */
+    (void)pascalHandleSigint;
 }
 #endif
 
