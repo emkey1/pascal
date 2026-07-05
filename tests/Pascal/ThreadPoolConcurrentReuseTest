@@ -1,0 +1,30 @@
+program ThreadPoolConcurrentReuseTest;
+
+{ Regression test: spawn 15 concurrent jobs (filling the pool), join the
+  first 10 to free their slots, then spawn 10 more concurrently while jobs
+  11..15 from the first batch may still be draining. This exercises slot
+  reuse under real concurrency -- multiple workers finishing and being
+  recycled while new CreateThread calls race to grab freed slots -- which
+  is where a use-after-free on the job handoff (freeing a job's assignment
+  handshake before the caller reads it back out) used to show up as an
+  intermittent hang once the WaitForThread release leak was fixed. 25 jobs
+  total, never more than 15 concurrently outstanding. }
+
+procedure Worker;
+begin
+end;
+
+var
+  handles: array[1..25] of Integer;
+  i: Integer;
+begin
+  for i := 1 to 15 do
+    handles[i] := CreateThread(@Worker);
+  for i := 1 to 10 do
+    WaitForThread(handles[i]);
+  for i := 16 to 25 do
+    handles[i] := CreateThread(@Worker);
+  for i := 11 to 25 do
+    WaitForThread(handles[i]);
+  writeln('concurrent reuse ok: 25 jobs, max 15 concurrent');
+end.

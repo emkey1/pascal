@@ -1,0 +1,24 @@
+program ThreadPoolSequentialReuseTest;
+
+{ Regression test: the VM thread pool has VM_MAX_WORKERS (15) worker slots.
+  Running more than 15 SpawnProcedure/WaitForThread cycles *sequentially*
+  (never more than one job outstanding at a time) used to hang forever on
+  the 16th CreateThread call: WaitForThread never actually released the
+  worker slot back to the pool, so each cycle silently consumed a fresh
+  slot instead of recycling the one just freed, and slots ran out for
+  good after 15 cycles cumulative -- regardless of concurrency. }
+
+procedure Worker;
+begin
+end;
+
+var
+  t: Integer;
+  i: Integer;
+begin
+  for i := 1 to 40 do begin
+    t := CreateThread(@Worker);
+    WaitForThread(t);
+  end;
+  writeln('sequential reuse ok: 40 jobs');
+end.

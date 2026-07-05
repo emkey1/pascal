@@ -1,0 +1,23 @@
+program ThreadPoolConcurrentWavesTest;
+
+{ Regression test: multiple sequential waves of exactly VM_MAX_WORKERS (15)
+  truly-concurrent jobs. Each wave fills every worker slot, then joins all
+  15 before the next wave starts. Exercises that all 15 slots become
+  reusable again once each wave is fully joined. }
+
+procedure Worker;
+begin
+end;
+
+var
+  handles: array[1..15] of Integer;
+  i, w: Integer;
+begin
+  for w := 1 to 3 do begin
+    for i := 1 to 15 do
+      handles[i] := CreateThread(@Worker);
+    for i := 1 to 15 do
+      WaitForThread(handles[i]);
+  end;
+  writeln('concurrent waves ok: 3 waves of 15');
+end.
