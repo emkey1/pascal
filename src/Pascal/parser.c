@@ -5081,6 +5081,8 @@ AST *factor(Parser *parser) {
         bool allCharCodes = true;
         int initialLine = initialToken ? initialToken->line : 0;
         int initialColumn = initialToken ? initialToken->column : 0;
+        /* initialToken is freed by the first eat() below; capture everything now. */
+        uint32_t initialCharCode = initialToken ? initialToken->char_code_value : 0;
 
         while (parser->current_token && parser->current_token->type == TOKEN_STRING_CONST) {
             Token *segment = parser->current_token;
@@ -5139,12 +5141,9 @@ AST *factor(Parser *parser) {
         combinedToken.line = initialLine;
         combinedToken.column = initialColumn;
         combinedToken.is_char_code = (bufferLen == 1) && allCharCodes;
-        combinedToken.char_code_value = (combinedToken.is_char_code && initialToken)
-            ? initialToken->char_code_value
-            : 0;
+        combinedToken.char_code_value = combinedToken.is_char_code ? initialCharCode : 0;
 
         node = newASTNode(AST_STRING, &combinedToken);
-        free(buffer);
 
         VarType literalType = TYPE_STRING;
         if (bufferLen == 1) {
@@ -5160,6 +5159,7 @@ AST *factor(Parser *parser) {
                 literalType = TYPE_UNICODE_STRING;
             }
         }
+        free(buffer);
         setTypeAST(node, literalType);
         return node; // <<< RETURN IMMEDIATELY
 
