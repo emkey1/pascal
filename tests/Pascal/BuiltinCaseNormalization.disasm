@@ -10,18 +10,18 @@ Offset Line Opcode           Operand  Value / Target (Args)
 0018    | SWAP
 0019    | SET_INDIRECT
 0020    6 CONST_1
-0021    | GET_GLOBAL          3 's' cache=0x0
-0031    | CALL_BUILTIN         8 'length' (1 args)
-0035    | CALL_BUILTIN_PROC   181 'write' (2 args)
-0041    7 CONST_1
-0042    | GET_GLOBAL          3 's' cache=0x0
-0052    | CALL_BUILTIN         8 'length' (1 args)
-0056    | CALL_BUILTIN_PROC   181 'write' (2 args)
-0062    8 CONST_1
-0063    | GET_GLOBAL          3 's' cache=0x0
-0073    | CALL_BUILTIN         8 'length' (1 args)
-0077    | CALL_BUILTIN_PROC   181 'write' (2 args)
-0083    1 HALT
+0021    | GET_GLOBAL          3 's' cache_id=0
+0025    | CALL_BUILTIN         8 'length' (1 args)
+0029    | CALL_BUILTIN_PROC   181 'write' (2 args)
+0035    7 CONST_1
+0036    | GET_GLOBAL          3 's' cache_id=1
+0040    | CALL_BUILTIN         8 'length' (1 args)
+0044    | CALL_BUILTIN_PROC   181 'write' (2 args)
+0050    8 CONST_1
+0051    | GET_GLOBAL          3 's' cache_id=2
+0055    | CALL_BUILTIN         8 'length' (1 args)
+0059    | CALL_BUILTIN_PROC   181 'write' (2 args)
+0065    1 HALT
 == End Disassembly: Pascal/BuiltinCaseNormalization ==
 
 Constants (10):\n  0000: STR   "myself"

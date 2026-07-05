@@ -63,53 +63,53 @@ Offset Line Opcode           Operand  Value / Target (Args)
 0172    | TO_BOOL
 0173    | JUMP                1 (to 0179)
 0178    | CONST_FALSE
-0179    | SET_GLOBAL          3 'r0' cache=0x0
-0189   22 CONST_TRUE
-0190    | JUMP_IF_FALSE       6 (to 0201)
-0195    | CONST_TRUE
-0196    | JUMP                5 (to 0206)
-0201    | CALL_USER_PROC      16 'rhs1' @0037 (0 args)
-0205    | TO_BOOL
-0206    | SET_GLOBAL          5 'r1' cache=0x0
-0216   23 CONST_TRUE
-0217    | JUMP_IF_FALSE      10 (to 0232)
-0222    | CALL_USER_PROC      16 'rhs1' @0037 (0 args)
-0226    | TO_BOOL
-0227    | JUMP                1 (to 0233)
-0232    | CONST_FALSE
-0233    | SET_GLOBAL          6 'r2' cache=0x0
-0243   24 CONST_FALSE
-0244    | JUMP_IF_FALSE       6 (to 0255)
-0249    | CONST_TRUE
-0250    | JUMP                5 (to 0260)
-0255    | CALL_USER_PROC      32 'rhs0' @0057 (0 args)
-0259    | TO_BOOL
-0260    | SET_GLOBAL          7 'r3' cache=0x0
-0270   25 CONST_FALSE
-0271    | JUMP_IF_FALSE       6 (to 0282)
-0276    | CONST_TRUE
-0277    | JUMP                5 (to 0287)
-0282    | CALL_USER_PROC      16 'rhs1' @0037 (0 args)
-0286    | TO_BOOL
-0287    | SET_GLOBAL          8 'r4' cache=0x0
-0297   27 CONST_1
-0298    | CONSTANT           35 'vals:'
-0300    | GET_GLOBAL          3 'r0' cache=0x0
-0310    | CALL_BUILTIN        36 'ord' (1 args)
-0314    | CONSTANT           37 ' '
-0316    | GET_GLOBAL          5 'r1' cache=0x0
-0326    | CALL_BUILTIN        36 'ord' (1 args)
-0330    | CONSTANT           37 ' '
-0332    | GET_GLOBAL          6 'r2' cache=0x0
-0342    | CALL_BUILTIN        36 'ord' (1 args)
-0346    | CONSTANT           37 ' '
-0348    | GET_GLOBAL          7 'r3' cache=0x0
-0358    | CALL_BUILTIN        36 'ord' (1 args)
-0362    | CONSTANT           37 ' '
-0364    | GET_GLOBAL          8 'r4' cache=0x0
-0374    | CALL_BUILTIN        36 'ord' (1 args)
-0378    | CALL_BUILTIN_PROC   181 'write' (11 args)
-0384    1 HALT
+0179    | SET_GLOBAL          3 'r0' cache_id=0
+0183   22 CONST_TRUE
+0184    | JUMP_IF_FALSE       6 (to 0195)
+0189    | CONST_TRUE
+0190    | JUMP                5 (to 0200)
+0195    | CALL_USER_PROC      16 'rhs1' @0037 (0 args)
+0199    | TO_BOOL
+0200    | SET_GLOBAL          5 'r1' cache_id=1
+0204   23 CONST_TRUE
+0205    | JUMP_IF_FALSE      10 (to 0220)
+0210    | CALL_USER_PROC      16 'rhs1' @0037 (0 args)
+0214    | TO_BOOL
+0215    | JUMP                1 (to 0221)
+0220    | CONST_FALSE
+0221    | SET_GLOBAL          6 'r2' cache_id=2
+0225   24 CONST_FALSE
+0226    | JUMP_IF_FALSE       6 (to 0237)
+0231    | CONST_TRUE
+0232    | JUMP                5 (to 0242)
+0237    | CALL_USER_PROC      32 'rhs0' @0057 (0 args)
+0241    | TO_BOOL
+0242    | SET_GLOBAL          7 'r3' cache_id=3
+0246   25 CONST_FALSE
+0247    | JUMP_IF_FALSE       6 (to 0258)
+0252    | CONST_TRUE
+0253    | JUMP                5 (to 0263)
+0258    | CALL_USER_PROC      16 'rhs1' @0037 (0 args)
+0262    | TO_BOOL
+0263    | SET_GLOBAL          8 'r4' cache_id=4
+0267   27 CONST_1
+0268    | CONSTANT           35 'vals:'
+0270    | GET_GLOBAL          3 'r0' cache_id=5
+0274    | CALL_BUILTIN        36 'ord' (1 args)
+0278    | CONSTANT           37 ' '
+0280    | GET_GLOBAL          5 'r1' cache_id=6
+0284    | CALL_BUILTIN        36 'ord' (1 args)
+0288    | CONSTANT           37 ' '
+0290    | GET_GLOBAL          6 'r2' cache_id=7
+0294    | CALL_BUILTIN        36 'ord' (1 args)
+0298    | CONSTANT           37 ' '
+0300    | GET_GLOBAL          7 'r3' cache_id=8
+0304    | CALL_BUILTIN        36 'ord' (1 args)
+0308    | CONSTANT           37 ' '
+0310    | GET_GLOBAL          8 'r4' cache_id=9
+0314    | CALL_BUILTIN        36 'ord' (1 args)
+0318    | CALL_BUILTIN_PROC   181 'write' (11 args)
+0324    1 HALT
 == End Disassembly: Pascal/ShortCircuitTest ==
 
 Constants (38):\n  0000: STR   "myself"

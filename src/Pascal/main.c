@@ -356,11 +356,11 @@ int runProgram(const char *source, const char *programName, const char *displayN
 
             if (compilation_ok_for_vm) {
                 restoreProcedureConstructorAliases(procedure_table);
-                if (chunk.global_symbol_cache && chunk.constants_capacity > 0) {
-                    for (int cache_i = 0; cache_i < chunk.constants_capacity; ++cache_i) {
-                        chunk.global_symbol_cache[cache_i] = NULL;
-                    }
-                }
+                // VM 2.0 Phase 2a: the global-access cache side table
+                // (chunk.caches) is allocated lazily by interpretBytecode()'s
+                // prologue, always freshly calloc'd -- nothing to reset here
+                // (unlike the old constants_capacity-sized global_symbol_cache
+                // array this replaced, which existed by this point already).
             }
 
             if (compilation_ok_for_vm) {
