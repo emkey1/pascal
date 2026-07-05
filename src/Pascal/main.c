@@ -40,6 +40,7 @@
 #include "backend_ast/builtin.h"
 #include "ext_builtins/dump.h"
 #include "compiler/bytecode.h"
+#include "compiler/bytecode_link.h"
 #include "compiler/compiler.h"
 #include "core/cache.h"
 #include "symbol/symbol.h"
@@ -326,6 +327,21 @@ int runProgram(const char *source, const char *programName, const char *displayN
                 if (compilation_ok_for_vm) {
                     finalizeBytecode(&chunk);
                     saveBytecodeToCache(programName, kPascalCompilerId, &chunk);
+                    // VM 2.0 Phase 2b (plan §5.7): link AFTER saving to cache,
+                    // never before -- the cached .bc must always hold the
+                    // pre-link (name-indexed) representation, so a later
+                    // cache hit doesn't get linked twice (see compiler.c's
+                    // compileASTToBytecode() comment for what goes wrong if
+                    // it does). Must also run before the disassembly below,
+                    // since that's what gives --dump-bytecode-only real slot
+                    // names instead of raw pre-link indices.
+                    char link_err[256];
+                    if (!pscalLinkGlobalSlots(&chunk, link_err, sizeof(link_err))) {
+                        fprintf(stderr, "Compiler error: failed to link global slots: %s\n", link_err);
+                        compilation_ok_for_vm = false;
+                    }
+                }
+                if (compilation_ok_for_vm) {
                     if (verbose_flag) {
                         fprintf(stderr, "Compilation successful. Bytecode size: %d bytes, Constants: %d\n",
                                 chunk.count, chunk.constants_count);
