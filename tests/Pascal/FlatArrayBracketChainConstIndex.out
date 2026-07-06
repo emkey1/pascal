@@ -1,0 +1,10 @@
+START: Bracket-chain store/load f[1][2]: PASS
+START: Bracket-chain store matches comma-syntax read f[1,2]: PASS
+START: 2D bracket-chain matches comma f[1][1]: PASS
+START: 2D bracket-chain matches comma f[1][3]: PASS
+START: 2D bracket-chain matches comma f[2][1]: PASS
+START: 2D bracket-chain matches comma f[2][2]: PASS
+START: 2D bracket-chain matches comma f[2][3]: PASS
+START: 3D bracket-chain store matches comma c[1,2,1]: PASS
+START: 3D comma store matches bracket-chain read c[2][1][2]: PASS
+FlatArrayBracketChainConstIndex Completed.
