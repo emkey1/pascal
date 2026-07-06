@@ -59,6 +59,7 @@
 #include PSCALI_SDL_TTF_HEADER
 #endif
 #include "vm/vm.h"
+#include "vm/vm_fx_policy.h"
 // ast.h is already included via globals.h or directly, no need for duplicate
 
 static int s_vm_trace_head = 0;
@@ -569,6 +570,12 @@ int PSCAL_PASCAL_ENTRY_SYMBOL(int argc, char *argv[]) {
             verbose_flag = 1;
         } else if (strncmp(argv[i], "--vm-trace-head=", 16) == 0) {
             s_vm_trace_head = atoi(argv[i] + 16);
+        } else if (pscalFxIsCliFlag(argv[i])) {
+            const char *fx_value = (i + 1 < argc) ? argv[i + 1] : NULL;
+            if (!pscalFxHandleCliFlag(argv[i], fx_value)) {
+                PAS_RETURN(EXIT_FAILURE);
+            }
+            i++;
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "%s\n", PASCAL_USAGE);
