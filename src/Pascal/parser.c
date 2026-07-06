@@ -1837,6 +1837,9 @@ void addProcedure(Parser *parser, AST *proc_decl_ast_original, const char* unit_
     sym->bytecode_address = -1; // -1 can indicate no address assigned yet.
     sym->arity = proc_decl_ast_original->child_count; // Store parameter count for builtins and declarations
     sym->locals_count = 0;      // Will be updated later.
+    sym->slot_index = -1;
+    sym->real_symbol = NULL;
+    sym->upvalue_count = 0;
 
     if (proc_table_param) {
         hashTableInsert(proc_table_param, sym);
