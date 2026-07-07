@@ -186,13 +186,15 @@ static bool validateSubrangeBounds(Parser *parser, const Value *lower, const Val
             errorParser(parser, "Subrange bounds must use the same ordinal type");
             return false;
         }
-        if (!lower->enum_val || !upper->enum_val ||
-            !lower->enum_val->enum_name || !upper->enum_val->enum_name ||
-            strcmp(lower->enum_val->enum_name, upper->enum_val->enum_name) != 0) {
+        const EnumObj *lower_enum_obj = PSCAL_VALUE_PTR(*lower, EnumObj);
+        const EnumObj *upper_enum_obj = PSCAL_VALUE_PTR(*upper, EnumObj);
+        if (!lower_enum_obj || !upper_enum_obj ||
+            !lower_enum_obj->enum_name || !upper_enum_obj->enum_name ||
+            strcmp(lower_enum_obj->enum_name, upper_enum_obj->enum_name) != 0) {
             errorParser(parser, "Subrange enum bounds must belong to the same enum type");
             return false;
         }
-        if (lower->enum_val->ordinal > upper->enum_val->ordinal) {
+        if (lower_enum_obj->ordinal > upper_enum_obj->ordinal) {
             errorParser(parser, "Subrange lower bound exceeds upper bound");
             return false;
         }
@@ -205,7 +207,7 @@ static bool validateSubrangeBounds(Parser *parser, const Value *lower, const Val
             errorParser(parser, "Subrange bounds must use the same ordinal type");
             return false;
         }
-        if (lower->c_val > upper->c_val) {
+        if (AS_CHAR(*lower) > AS_CHAR(*upper)) {
             errorParser(parser, "Subrange lower bound exceeds upper bound");
             return false;
         }
@@ -218,7 +220,7 @@ static bool validateSubrangeBounds(Parser *parser, const Value *lower, const Val
             errorParser(parser, "Subrange bounds must use the same ordinal type");
             return false;
         }
-        if ((lower->i_val ? 1 : 0) > (upper->i_val ? 1 : 0)) {
+        if ((VAL_INT(*lower) ? 1 : 0) > (VAL_INT(*upper) ? 1 : 0)) {
             errorParser(parser, "Subrange lower bound exceeds upper bound");
             return false;
         }
@@ -2717,8 +2719,9 @@ AST *parseEnumDefinition(Parser *parser, Token* enumTypeNameToken) {
         // --- Symbol Table Handling (using copied token's value) ---
         insertGlobalSymbol(copiedValueToken->value, TYPE_ENUM, node);
         Symbol *symCheck = lookupGlobalSymbol(copiedValueToken->value);
-        if (symCheck && symCheck->value && symCheck->value->enum_val) {
-            symCheck->value->enum_val->ordinal = valueNode->i_val;
+        EnumObj *symCheck_enum_obj = symCheck && symCheck->value ? PSCAL_VALUE_PTR(*symCheck->value, EnumObj) : NULL;
+        if (symCheck_enum_obj) {
+            symCheck_enum_obj->ordinal = valueNode->i_val;
             /* Enum members are constants so mark them accordingly */
             symCheck->is_const = true;
         }
@@ -4626,8 +4629,9 @@ AST *enumDeclaration(Parser *parser) {
         // Pass the parent TYPE node ('node') as the type definition hint.
         insertGlobalSymbol(valueToken->value, TYPE_ENUM, node);
         Symbol *symCheck = lookupGlobalSymbol(valueToken->value);
-        if (symCheck && symCheck->value && symCheck->value->enum_val) {
-            symCheck->value->enum_val->ordinal = valueNode->i_val; // Ensure ordinal is correct
+        EnumObj *symCheck_enum_obj = symCheck && symCheck->value ? PSCAL_VALUE_PTR(*symCheck->value, EnumObj) : NULL;
+        if (symCheck_enum_obj) {
+            symCheck_enum_obj->ordinal = valueNode->i_val; // Ensure ordinal is correct
             /* Enum members are constants for global lookup and caching */
             symCheck->is_const = true;
             // enum_name should be set correctly by insertGlobalSymbol now
