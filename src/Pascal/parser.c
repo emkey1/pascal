@@ -186,12 +186,13 @@ static bool validateSubrangeBounds(Parser *parser, const Value *lower, const Val
             errorParser(parser, "Subrange bounds must use the same ordinal type");
             return false;
         }
-        if (!lower->enum_val.enum_name || !upper->enum_val.enum_name ||
-            strcmp(lower->enum_val.enum_name, upper->enum_val.enum_name) != 0) {
+        if (!lower->enum_val || !upper->enum_val ||
+            !lower->enum_val->enum_name || !upper->enum_val->enum_name ||
+            strcmp(lower->enum_val->enum_name, upper->enum_val->enum_name) != 0) {
             errorParser(parser, "Subrange enum bounds must belong to the same enum type");
             return false;
         }
-        if (lower->enum_val.ordinal > upper->enum_val.ordinal) {
+        if (lower->enum_val->ordinal > upper->enum_val->ordinal) {
             errorParser(parser, "Subrange lower bound exceeds upper bound");
             return false;
         }
@@ -2305,19 +2306,19 @@ AST *constDeclaration(Parser *parser) {
         }
     }
 
-    if (const_eval_result.type != TYPE_VOID && const_eval_result.type != TYPE_UNKNOWN) {
+    if (VALUE_TYPE(const_eval_result) != TYPE_VOID && VALUE_TYPE(const_eval_result) != TYPE_UNKNOWN) {
         // Use cn->value and cn->line, as 'cn' is still valid.
         addCompilerConstant(cn->value, &const_eval_result, cn->line);
 #ifdef DEBUG
         Value* check_val = findCompilerConstant(cn->value);
         if (check_val) {
-            fprintf(stderr, "[DEBUG PARSER constDecl] VERIFY ADD: Found '%s' immediately. Type: %s\n", cn->value, varTypeToString(check_val->type));
+            fprintf(stderr, "[DEBUG PARSER constDecl] VERIFY ADD: Found '%s' immediately. Type: %s\n", cn->value, varTypeToString(VALUE_TYPE(*check_val)));
         } else {
             fprintf(stderr, "[DEBUG PARSER constDecl] VERIFY ADD: FAILED to find '%s' immediately after add!\n", cn->value);
         }
 #endif
         if (!type_node) {
-            setTypeAST(node, const_eval_result.type);
+            setTypeAST(node, VALUE_TYPE(const_eval_result));
         }
     } else if (!type_node) {
 #ifdef DEBUG
@@ -2716,8 +2717,8 @@ AST *parseEnumDefinition(Parser *parser, Token* enumTypeNameToken) {
         // --- Symbol Table Handling (using copied token's value) ---
         insertGlobalSymbol(copiedValueToken->value, TYPE_ENUM, node);
         Symbol *symCheck = lookupGlobalSymbol(copiedValueToken->value);
-        if (symCheck && symCheck->value) {
-            symCheck->value->enum_val.ordinal = valueNode->i_val;
+        if (symCheck && symCheck->value && symCheck->value->enum_val) {
+            symCheck->value->enum_val->ordinal = valueNode->i_val;
             /* Enum members are constants so mark them accordingly */
             symCheck->is_const = true;
         }
@@ -4625,8 +4626,8 @@ AST *enumDeclaration(Parser *parser) {
         // Pass the parent TYPE node ('node') as the type definition hint.
         insertGlobalSymbol(valueToken->value, TYPE_ENUM, node);
         Symbol *symCheck = lookupGlobalSymbol(valueToken->value);
-        if (symCheck && symCheck->value) {
-            symCheck->value->enum_val.ordinal = valueNode->i_val; // Ensure ordinal is correct
+        if (symCheck && symCheck->value && symCheck->value->enum_val) {
+            symCheck->value->enum_val->ordinal = valueNode->i_val; // Ensure ordinal is correct
             /* Enum members are constants for global lookup and caching */
             symCheck->is_const = true;
             // enum_name should be set correctly by insertGlobalSymbol now
