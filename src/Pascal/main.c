@@ -60,6 +60,7 @@
 #endif
 #include "vm/vm.h"
 #include "vm/vm_fx_policy.h"
+#include "ext_builtins/plugin_loader.h"
 // ast.h is already included via globals.h or directly, no need for duplicate
 
 static int s_vm_trace_head = 0;
@@ -573,6 +574,12 @@ int PSCAL_PASCAL_ENTRY_SYMBOL(int argc, char *argv[]) {
         } else if (pscalFxIsCliFlag(argv[i])) {
             const char *fx_value = (i + 1 < argc) ? argv[i + 1] : NULL;
             if (!pscalFxHandleCliFlag(argv[i], fx_value)) {
+                PAS_RETURN(EXIT_FAILURE);
+            }
+            i++;
+        } else if (pscalExtIsCliFlag(argv[i])) {
+            const char *ext_value = (i + 1 < argc) ? argv[i + 1] : NULL;
+            if (!pscalExtHandleCliFlag(argv[i], ext_value)) {
                 PAS_RETURN(EXIT_FAILURE);
             }
             i++;
