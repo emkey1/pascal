@@ -2,9 +2,13 @@
 program ClosureEscapeError;
 
 // Run with: pascal Examples/pascal/base/ClosureEscapeError
-// Expected: compiler error "closure captures a local value that would escape its
-// lifetime." Registering @Reporter stores a closure that still refers to
-// stack-allocated values (Message and Occurrences), so the compiler rejects it.
+// Historically this program was rejected with a closure-escape lifetime error:
+// registering @Reporter stores a closure referring to stack-allocated values
+// (Message and Occurrences). Escaping capturing closures are now supported —
+// captured state is kept alive with the closure — so this compiles and runs.
+// Expected output:
+//   [delayed] Daily rollup (run #1)
+//   [delayed] After-hours summary (run #1)
 
 type
   TProc = procedure();

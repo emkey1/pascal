@@ -3739,6 +3739,34 @@ AST *statement(Parser *parser) {
                 }
                 node = proc_call_node_to_use;
             }
+            // Indirect call statement through a procedure-pointer expression held in
+            // an array element, e.g. Pending[I]();  The callee expression becomes the
+            // call node's 'left' with a NULL token — the compiler's indirect-call path
+            // (PROC_CALL_INDIRECT) compiles that shape.
+            else if (lval_or_proc_id->type == AST_ARRAY_ACCESS &&
+                     parser->current_token->type == TOKEN_LPAREN) {
+                AST *call = newASTNode(AST_PROCEDURE_CALL, NULL);
+                if (!call) { /* Malloc error */ freeAST(lval_or_proc_id); EXIT_FAILURE_HANDLER(); }
+                call->left = lval_or_proc_id;
+                lval_or_proc_id->parent = call;
+
+                eat(parser, TOKEN_LPAREN); // Consume '('
+                if (parser->current_token->type != TOKEN_RPAREN) {
+                    AST* args_compound = exprList(parser);
+                    if (args_compound && args_compound->type == AST_COMPOUND && args_compound->child_count > 0) {
+                        call->children = args_compound->children;
+                        call->child_count = args_compound->child_count;
+                        call->child_capacity = args_compound->child_capacity;
+                        args_compound->children = NULL; args_compound->child_count = 0; args_compound->child_capacity = 0;
+                        for (int i = 0; i < call->child_count; i++) {
+                            if (call->children[i]) call->children[i]->parent = call;
+                        }
+                    }
+                    if (args_compound) freeAST(args_compound);
+                }
+                eat(parser, TOKEN_RPAREN); // Consume ')'
+                node = call;
+            }
             // Error: If it's not an assignment and not a recognizable procedure/function call
             // This means lvalue() returned something like AST_ARRAY_ACCESS that isn't being called or assigned to.
             else {
