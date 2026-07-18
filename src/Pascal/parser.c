@@ -4051,14 +4051,33 @@ static bool parserAtNextCaseBranch(Parser *parser) {
         return false;
     }
 
-    Token *lookahead = peekToken(parser);
-    bool is_branch = lookahead &&
-                     (lookahead->type == TOKEN_COLON ||
-                      lookahead->type == TOKEN_COMMA ||
-                      lookahead->type == TOKEN_DOTDOT);
-    if (lookahead) {
-        freeToken(lookahead);
+    // A case branch is a constant-expression label list terminated by ':'
+    // at bracket depth 0 (e.g. "-1:", "Ord('q'), Ord('Q'):", "-2..-1:").
+    // A statement instead reaches ':=', ';', 'end', 'else', etc. first.
+    // Scan raw tokens ahead until one of those decides it.
+    Lexer backupLexerState = *(parser->lexer);
+    bool is_branch = false;
+    int depth = 0;
+    for (int scanned = 0; scanned < 64; scanned++) {
+        Token *tok = getNextToken(parser->lexer);
+        if (!tok) break;
+        TokenType t = tok->type;
+        freeToken(tok);
+        if (t == TOKEN_LPAREN || t == TOKEN_LBRACKET) {
+            depth++;
+        } else if (t == TOKEN_RPAREN || t == TOKEN_RBRACKET) {
+            if (--depth < 0) break;
+        } else if (depth == 0) {
+            if (t == TOKEN_COLON) { is_branch = true; break; }
+            if (t == TOKEN_ASSIGN || t == TOKEN_SEMICOLON ||
+                t == TOKEN_END || t == TOKEN_ELSE || t == TOKEN_BEGIN ||
+                t == TOKEN_THEN || t == TOKEN_DO || t == TOKEN_OF ||
+                t == TOKEN_EOF) {
+                break;
+            }
+        }
     }
+    *(parser->lexer) = backupLexerState;
     return is_branch;
 }
 
