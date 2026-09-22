@@ -1,0 +1,15 @@
+program MStreamLoadAsValue;
+{ MStreamLoadFromFile returns success, so it is called as a value as often
+  as a statement; its stream is a VAR parameter either way. As a value it
+  used to be passed by value and rejected at runtime. }
+var
+  ms: MStream;
+  ok: Boolean;
+begin
+  ms := MStreamCreate();
+  ok := MStreamLoadFromFile(ms, 'Pascal/MStreamLoadAsValue');
+  WriteLn('ok=', ok, ' nonempty=', Length(MStreamBuffer(ms)) > 0);
+  if MStreamLoadFromFile(ms, 'Pascal/MStreamLoadAsValue') then
+    WriteLn('loaded again');
+  MStreamFree(ms);
+end.
