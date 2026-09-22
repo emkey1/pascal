@@ -1,0 +1,4 @@
+program OrphanElse;
+begin
+  else WriteLn('no if');
+end.

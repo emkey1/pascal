@@ -1,0 +1,1 @@
+Parser error at line 9, column 33: ';' before 'else' is not allowed. hint: in Pascal ';' separates statements, so this one ends the 'if' and leaves the 'else' on line 10 with nothing to attach to -- remove the ';'.

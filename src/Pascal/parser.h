@@ -15,6 +15,11 @@ typedef struct {
     List *dependency_paths;
     int routine_depth;
     AST *current_routine;
+    // The token eat() consumed last, for diagnostics that hinge on what came
+    // just before current_token (a ';' before 'else').
+    TokenType prev_token_type;
+    int prev_token_line;
+    int prev_token_column;
 } Parser;
 
 AST *parsePointerType(Parser *parser);

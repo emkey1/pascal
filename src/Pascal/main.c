@@ -266,6 +266,9 @@ int runProgram(const char *source, const char *programName, const char *displayN
     parser.dependency_paths = createList();
     parser.routine_depth = 0;
     parser.current_routine = NULL;
+    parser.prev_token_type = TOKEN_UNKNOWN;
+    parser.prev_token_line = 0;
+    parser.prev_token_column = 0;
     GlobalAST = buildProgramAST(&parser, &chunk);
     if (parser.current_token) { freeToken(parser.current_token); parser.current_token = NULL; }
 

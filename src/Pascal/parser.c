@@ -642,6 +642,9 @@ void eatInternal(Parser *parser, TokenType type) {
     if (parser->current_token->type == type ||
         (type == TOKEN_IDENTIFIER && parser->current_token->type == TOKEN_LABEL)) {
         Token *tokenToFree = parser->current_token;
+        parser->prev_token_type = tokenToFree->type;
+        parser->prev_token_line = tokenToFree->line;
+        parser->prev_token_column = tokenToFree->column;
         // Get the next token BEFORE freeing the current one
         parser->current_token = getNextToken(parser->lexer);
         if (tokenToFree) {
@@ -1610,6 +1613,9 @@ AST *unitParser(Parser *parser_for_this_unit, int recursion_depth, const char* u
             nested_parser_instance.current_unit_name_context = NULL;
             nested_parser_instance.routine_depth = 0;
             nested_parser_instance.current_routine = NULL;
+            nested_parser_instance.prev_token_type = TOKEN_UNKNOWN;
+            nested_parser_instance.prev_token_line = 0;
+            nested_parser_instance.prev_token_column = 0;
             
             // --- MODIFICATION: Pass the chunk recursively ---
             AST *parsed_nested_unit_ast = unitParser(&nested_parser_instance, recursion_depth + 1, nested_unit_name, chunk);
@@ -1662,6 +1668,14 @@ void errorParser(Parser *parser, const char *msg) {
     fprintf(stderr, "Parser error at line %d, column %d: %s (found token: %s)\n",
             parser->lexer->line, parser->lexer->column, msg,
             tokenTypeToString(parser->current_token->type));
+    pascal_parser_error_count++;
+    EXIT_FAILURE_HANDLER();
+}
+
+// errorParser at an explicit position, for errors whose cause is not the
+// current token (the lexer position errorParser reports is the end of it).
+static void errorParserAt(int line, int column, const char *msg) {
+    fprintf(stderr, "Parser error at line %d, column %d: %s\n", line, column, msg);
     pascal_parser_error_count++;
     EXIT_FAILURE_HANDLER();
 }
@@ -2037,6 +2051,9 @@ AST *buildProgramAST(Parser *main_parser, BytecodeChunk* chunk) {
                 nested_parser_instance.current_unit_name_context = NULL;
                 nested_parser_instance.routine_depth = 0;
                 nested_parser_instance.current_routine = NULL;
+                nested_parser_instance.prev_token_type = TOKEN_UNKNOWN;
+                nested_parser_instance.prev_token_line = 0;
+                nested_parser_instance.prev_token_column = 0;
 
                 // --- MODIFICATION: Pass the chunk recursively ---
                 AST *parsed_unit_ast = unitParser(&nested_parser_instance, 1, lower_used_unit_name, chunk);
@@ -3898,6 +3915,26 @@ AST *statement(Parser *parser) {
             eat(parser, TOKEN_SEMICOLON);
             node = newASTNode(AST_NOOP, NULL); // Represent as NOOP
             break; // No semicolon needed after an empty statement
+
+        case TOKEN_ELSE: {
+            // ifStatement consumes a legitimate ELSE, so one that starts a
+            // statement is orphaned -- nearly always by the C habit of ending the
+            // THEN branch with ';', which in Pascal ends the whole IF.
+            char error_msg[320];
+            if (parser->prev_token_type == TOKEN_SEMICOLON) {
+                snprintf(error_msg, sizeof(error_msg),
+                         "';' before 'else' is not allowed. hint: in Pascal ';' separates "
+                         "statements, so this one ends the 'if' and leaves the 'else' on "
+                         "line %d with nothing to attach to -- remove the ';'.",
+                         parser->current_token->line);
+                errorParserAt(parser->prev_token_line, parser->prev_token_column, error_msg);
+            } else {
+                errorParserAt(parser->current_token->line, parser->current_token->column,
+                              "'else' without a matching 'if ... then'.");
+            }
+            node = newASTNode(AST_NOOP, NULL);
+            break;
+        }
 
         default:
             // Error for unexpected token starting a statement.
