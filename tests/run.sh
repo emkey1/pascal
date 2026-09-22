@@ -500,6 +500,110 @@ EOF
     return 1
 }
 
+# A program with record and interface locals loads from the bytecode cache on
+# its second run. The compiler used to pool their default values as constants
+# the cache's codec cannot encode, so such a program recompiled on every run.
+# Covers a record local (the original report), an anonymous record, a record
+# constructor, a record function result, an interface local, and new() on a
+# record's pointer field, which needs the field's type rebuilt after loading.
+run_cache_record_local_test() {
+    local tmp_home src_dir
+    tmp_home=$(mktemp -d)
+    src_dir=$(mktemp -d)
+
+    cat > "$src_dir/CacheRecordLocal.pas" <<'EOF'
+program CacheRecordLocal;
+type
+  PNode = ^Node;
+  Node = record
+    val: integer;
+    next: PNode;
+  end;
+  P = record
+    x, y: integer;
+    head: PNode;
+  end;
+  ILogger = interface
+    procedure Log(const msg: string);
+  end;
+  TLogger = record
+    Prefix: string;
+    procedure Log(const msg: string);
+  end;
+
+procedure TLogger.Log(const msg: string);
+begin
+  writeln(Prefix, msg);
+end;
+
+function MakeP(ax, ay: integer): P;
+begin
+  MakeP.x := ax;
+  MakeP.y := ay;
+end;
+
+procedure Show;
+var
+  p: P;
+  anon: record k: integer; end;
+  logger: TLogger;
+  sink: ILogger;
+begin
+  p.x := 3;
+  p.y := 4;
+  new(p.head);
+  p.head^.val := p.x + p.y;
+  anon.k := p.head^.val * 2;
+  writeln(p.head^.val, ' ', anon.k);
+  dispose(p.head);
+  p := (x: 5; y: 6; head: nil);
+  writeln(p.x + p.y);
+  p := MakeP(7, 8);
+  writeln(p.x + p.y);
+  if sink = nil then
+  begin
+    logger.Prefix := 'log: ';
+    sink := logger;
+    sink.Log('ok');
+  end;
+end;
+
+begin
+  Show;
+end.
+EOF
+
+    local expected
+    expected=$'7 14\n11\n15\nlog: ok'
+    local issues=()
+    local run
+    for run in 1 2; do
+        set +e
+        (cd "$src_dir" && HOME="$tmp_home" "$PASCAL_BIN" --verbose CacheRecordLocal.pas \
+            > "$tmp_home/out$run" 2> "$tmp_home/err$run")
+        local status=$?
+        set -e
+        strip_ansi_inplace "$tmp_home/out$run"
+        if [ $status -ne 0 ]; then
+            issues+=("Run $run exited with $status; stderr:\n$(cat "$tmp_home/err$run")")
+        elif [ "$(cat "$tmp_home/out$run")" != "$expected" ]; then
+            issues+=("Run $run printed:\n$(cat "$tmp_home/out$run")")
+        fi
+    done
+    if ! grep -q 'Loaded cached bytecode' "$tmp_home/err2"; then
+        issues+=("Second run recompiled instead of loading the cache; stderr:\n$(cat "$tmp_home/err2")")
+    fi
+
+    rm -rf "$tmp_home" "$src_dir"
+
+    if [ ${#issues[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    printf '%b\n' "${issues[@]}"
+    return 1
+}
+
 if [ ! -x "$PASCAL_BIN" ]; then
     echo "pascal binary not found at $PASCAL_BIN" >&2
     exit 1
@@ -632,6 +736,12 @@ if details=$(run_cache_staleness_test); then
     harness_report PASS "pascal_cache_staleness" "Cache invalidation honours matching timestamps"
 else
     harness_report FAIL "pascal_cache_staleness" "Cache invalidation honours matching timestamps" "$details"
+fi
+
+if details=$(run_cache_record_local_test); then
+    harness_report PASS "pascal_cache_record_local" "Record and interface locals load from the cache"
+else
+    harness_report FAIL "pascal_cache_record_local" "Record and interface locals load from the cache" "$details"
 fi
 
 harness_summary "Pascal"
