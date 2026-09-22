@@ -1,0 +1,1 @@
+Parser error at line 5, column 3: Expected semicolon or END after statement in compound block (found token: IDENTIFIER)

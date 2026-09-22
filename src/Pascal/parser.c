@@ -35,8 +35,8 @@ void eatDebugWrapper(Parser *parser_ptr, TokenType expected_token_type, const ch
                  func_name, tokenTypeToString(expected_token_type),
                  parser_ptr->current_token ? tokenTypeToString(parser_ptr->current_token->type) : "NULL_TOKEN_TYPE", // Added NULL check
                  (parser_ptr->current_token && parser_ptr->current_token->value) ? parser_ptr->current_token->value : "NULL_TOKEN_VALUE", // Added NULL check
-                 parser_ptr->lexer ? parser_ptr->lexer->line : -1, // Added NULL check
-                 parser_ptr->lexer ? parser_ptr->lexer->column : -1); // Added NULL check
+                 parser_ptr->current_token ? parser_ptr->current_token->line : -1, // Added NULL check
+                 parser_ptr->current_token ? parser_ptr->current_token->column : -1); // Added NULL check
         fflush(stderr); // Crucial
 
         if (parser_ptr->current_token && parser_ptr->current_token->type != expected_token_type) { // Added NULL check
@@ -78,6 +78,8 @@ static bool parseVariantRecordSection(Parser *parser, AST *recordNode, int *slot
 static bool parseRecordMembers(Parser *parser, AST *recordNode, TokenType terminator, int *slotCursor);
 static AST *parseStatementListUntil(Parser *parser, TokenType terminator, const char *contextName);
 static AST *parseStatementListUntilEither(Parser *parser, TokenType terminatorA, TokenType terminatorB, const char *contextName);
+static void errorParserAt(int line, int column, const char *msg);
+static void errorParserHere(Parser *parser, const char *msg);
 static AST *tryStatement(Parser *parser);
 static AST *parseAnonymousSpawnProcedure(Parser *parser);
 static AST *parseAnonymousRoutineLiteral(Parser *parser);
@@ -654,7 +656,7 @@ void eatInternal(Parser *parser, TokenType type) {
         char err[128];
         snprintf(err, sizeof(err), "Expected token %s, got %s",
                  tokenTypeToString(type), tokenTypeToString(parser->current_token->type));
-        errorParser(parser, err); // errorParser should call EXIT_FAILURE_HANDLER
+        errorParserHere(parser, err); // errorParserHere should call EXIT_FAILURE_HANDLER
     }
 }
 
@@ -1664,20 +1666,63 @@ AST *unitParser(Parser *parser_for_this_unit, int recursion_depth, const char* u
     return unit_node;
 }
 
+// Where the current token starts. The lexer has already scanned past it, so its
+// own position is only a fallback for when there is no current token.
+static void currentTokenPosition(Parser *parser, int *line, int *column) {
+    if (parser->current_token) {
+        *line = parser->current_token->line;
+        *column = parser->current_token->column;
+    } else if (parser->lexer) {
+        *line = parser->lexer->line;
+        *column = parser->lexer->column;
+    } else {
+        *line = 0;
+        *column = 0;
+    }
+}
+
 void errorParser(Parser *parser, const char *msg) {
+    int line, column;
+    currentTokenPosition(parser, &line, &column);
     fprintf(stderr, "Parser error at line %d, column %d: %s (found token: %s)\n",
-            parser->lexer->line, parser->lexer->column, msg,
-            tokenTypeToString(parser->current_token->type));
+            line, column, msg,
+            parser->current_token ? tokenTypeToString(parser->current_token->type) : "EOF");
     pascal_parser_error_count++;
     EXIT_FAILURE_HANDLER();
 }
 
 // errorParser at an explicit position, for errors whose cause is not the
-// current token (the lexer position errorParser reports is the end of it).
+// current token.
 static void errorParserAt(int line, int column, const char *msg) {
     fprintf(stderr, "Parser error at line %d, column %d: %s\n", line, column, msg);
     pascal_parser_error_count++;
     EXIT_FAILURE_HANDLER();
+}
+
+// errorParser for messages that already name the current token, where the
+// "(found token: ...)" suffix would only repeat it.
+static void errorParserHere(Parser *parser, const char *msg) {
+    int line, column;
+    currentTokenPosition(parser, &line, &column);
+    errorParserAt(line, column, msg);
+}
+
+// Reports an ELSE found where a statement, or the separator after one, was
+// expected. ifStatement consumes every ELSE that has a matching 'if ... then',
+// so this one is orphaned -- nearly always by the C habit of ending the THEN
+// branch with ';', which in Pascal ends the whole IF.
+static void errorOrphanElse(Parser *parser) {
+    if (parser->prev_token_type == TOKEN_SEMICOLON) {
+        char error_msg[320];
+        snprintf(error_msg, sizeof(error_msg),
+                 "';' before 'else' is not allowed. hint: in Pascal ';' separates "
+                 "statements, so this one ends the 'if' and leaves the 'else' on "
+                 "line %d with nothing to attach to -- remove the ';'.",
+                 parser->current_token->line);
+        errorParserAt(parser->prev_token_line, parser->prev_token_column, error_msg);
+    } else {
+        errorParserHere(parser, "'else' without a matching 'if ... then'.");
+    }
 }
 
 void addProcedure(Parser *parser, AST *proc_decl_ast_original, const char* unit_context_name_param_for_addproc, HashTable *proc_table_param) {
@@ -2136,8 +2181,8 @@ AST *procedureDeclaration(Parser *parser, bool in_interface) {
                 tokenTypeToString(parser->current_token->type),
                 parser->current_token->type == TOKEN_LPAREN ? "LPAREN" : "NOT LPAREN",
                 parser->current_token->value ? parser->current_token->value : "NULL",
-                parser->lexer->line,
-                parser->lexer->column);
+                parser->current_token->line,
+                parser->current_token->column);
     } else {
         fprintf(stderr, "[DEBUG PROC_DECL_ENTRY] After eating proc name '%s', current_token is NULL\n", node->token->value);
     }
@@ -2159,7 +2204,7 @@ AST *procedureDeclaration(Parser *parser, bool in_interface) {
         } else {
              char err_msg[128];
              snprintf(err_msg, sizeof(err_msg), "Expected ')' to close parameter list for procedure '%s', got %s", node->token->value, parser->current_token ? tokenTypeToString(parser->current_token->type) : "EOF");
-             errorParser(parser, err_msg);
+             errorParserHere(parser, err_msg);
              // If errorParser() could return (e.g., if EXIT_FAILURE_HANDLER is suppressed),
              // the following cleanup would be executed.
              if(params) { // Conditionally free params
@@ -2970,7 +3015,7 @@ AST *functionDeclaration(Parser *parser, bool in_interface) {
              snprintf(err_msg, sizeof(err_msg), "Expected ')' to close parameter list for function '%s', got %s",
                       copiedFuncNameToken->value,
                       parser->current_token ? tokenTypeToString(parser->current_token->type) : "EOF");
-             errorParser(parser, err_msg);
+             errorParserHere(parser, err_msg);
              if(params) freeAST(params);
              if(node) freeAST(node); // freeAST will handle node->token
              else if(copiedFuncNameToken) freeToken(copiedFuncNameToken); // If node wasn't created
@@ -3217,25 +3262,22 @@ AST* compoundStatement(Parser *parser) {
             // --- CORRECTED DEBUG PRINT HERE ---
             #ifdef DEBUG
             fprintf(stderr, "\n[DEBUG_ERROR] In compoundStatement loop after parsing a statement.\n");
-            // *** Access line/column via parser->lexer ***
             fprintf(stderr, "[DEBUG_ERROR] Expected SEMICOLON or END, but found Token Type: %d (%s), Value: '%s' at Line %d, Col %d\n\n",
                     parser->current_token->type,
                     tokenTypeToString(parser->current_token->type),
                     parser->current_token->value ? parser->current_token->value : "NULL",
-                    parser->lexer->line,  // <-- Use parser->lexer->line
-                    parser->lexer->column // <-- Use parser->lexer->column
+                    parser->current_token->line,
+                    parser->current_token->column
                    );
             fflush(stderr);
             #endif
             // --- END CORRECTED DEBUG PRINT ---
 
-            // --- Original Error Reporting ---
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg),
-                     "Expected semicolon or END after statement in compound block (found token: %s)",
-                     tokenTypeToString(parser->current_token->type));
-            errorParser(parser, error_msg);
-            // --- End Original Error Reporting ---
+            if (parser->current_token->type == TOKEN_ELSE) {
+                errorOrphanElse(parser);
+            } else {
+                errorParser(parser, "Expected semicolon or END after statement in compound block");
+            }
 
             break; // Exit loop on error
         }
@@ -3246,12 +3288,7 @@ AST* compoundStatement(Parser *parser) {
        if (parser->current_token->type == TOKEN_END) {
           eat(parser, TOKEN_END);
        } else {
-           char error_msg[128];
-           // *** Also update error location here if needed ***
-           snprintf(error_msg, sizeof(error_msg), "Expected END or '.', but found %s at Line %d Col %d",
-                    tokenTypeToString(parser->current_token->type),
-                    parser->lexer->line, parser->lexer->column); // Use lexer location
-           errorParser(parser, error_msg);
+           errorParser(parser, "Expected END or '.'");
        }
     }
     return node;
@@ -3301,12 +3338,15 @@ static AST *parseStatementListUntil(Parser *parser, TokenType terminator, const 
             continue;
         }
 
+        if (parser->current_token->type == TOKEN_ELSE) {
+            errorOrphanElse(parser);
+            break;
+        }
         char error_msg[192];
         snprintf(error_msg, sizeof(error_msg),
-                 "Expected semicolon or %s after statement in %s block (found token: %s)",
+                 "Expected semicolon or %s after statement in %s block",
                  tokenTypeToString(terminator),
-                 contextName ? contextName : "statement",
-                 tokenTypeToString(parser->current_token->type));
+                 contextName ? contextName : "statement");
         errorParser(parser, error_msg);
         break;
     }
@@ -3363,13 +3403,16 @@ static AST *parseStatementListUntilEither(Parser *parser, TokenType terminatorA,
             continue;
         }
 
+        if (parser->current_token->type == TOKEN_ELSE) {
+            errorOrphanElse(parser);
+            break;
+        }
         char error_msg[224];
         snprintf(error_msg, sizeof(error_msg),
-                 "Expected semicolon or %s/%s after statement in %s block (found token: %s)",
+                 "Expected semicolon or %s/%s after statement in %s block",
                  tokenTypeToString(terminatorA),
                  tokenTypeToString(terminatorB),
-                 contextName ? contextName : "statement",
-                 tokenTypeToString(parser->current_token->type));
+                 contextName ? contextName : "statement");
         errorParser(parser, error_msg);
         break;
     }
@@ -3916,25 +3959,10 @@ AST *statement(Parser *parser) {
             node = newASTNode(AST_NOOP, NULL); // Represent as NOOP
             break; // No semicolon needed after an empty statement
 
-        case TOKEN_ELSE: {
-            // ifStatement consumes a legitimate ELSE, so one that starts a
-            // statement is orphaned -- nearly always by the C habit of ending the
-            // THEN branch with ';', which in Pascal ends the whole IF.
-            char error_msg[320];
-            if (parser->prev_token_type == TOKEN_SEMICOLON) {
-                snprintf(error_msg, sizeof(error_msg),
-                         "';' before 'else' is not allowed. hint: in Pascal ';' separates "
-                         "statements, so this one ends the 'if' and leaves the 'else' on "
-                         "line %d with nothing to attach to -- remove the ';'.",
-                         parser->current_token->line);
-                errorParserAt(parser->prev_token_line, parser->prev_token_column, error_msg);
-            } else {
-                errorParserAt(parser->current_token->line, parser->current_token->column,
-                              "'else' without a matching 'if ... then'.");
-            }
+        case TOKEN_ELSE:
+            errorOrphanElse(parser);
             node = newASTNode(AST_NOOP, NULL);
             break;
-        }
 
         default:
             // Error for unexpected token starting a statement.
@@ -4741,8 +4769,8 @@ AST *enumDeclaration(Parser *parser) {
 // Parses an expression possibly followed by formatting specifiers.
 // Syntax: <expression> [ : <fieldWidth> [ : <decimalPlaces> ] ]
 AST *parseWriteArgument(Parser *parser) {
-    int expr_line = parser->lexer->line;
-    int expr_column = parser->lexer->column;
+    int expr_line, expr_column;
+    currentTokenPosition(parser, &expr_line, &expr_column);
     
     AST *exprNode = expression(parser); // <<< Use expression()
     if (!exprNode || exprNode->type == AST_NOOP) { errorParser(parser, "Expected expression in write argument"); return newASTNode(AST_NOOP, NULL); }

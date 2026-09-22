@@ -1,0 +1,11 @@
+program ElseAfterIfElse;
+var n: integer;
+begin
+  n := 1;
+  if n > 0 then
+    WriteLn('positive')
+  else
+    WriteLn('not positive')
+  else
+    WriteLn('a second else');
+end.
