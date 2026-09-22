@@ -314,6 +314,9 @@ int runProgram(const char *source, const char *programName, const char *displayN
 
             if (!no_cache_flag) {
                 used_cache = loadBytecodeFromCache(programName, kPascalCompilerId, frontend_path, dep_array, dep_count, &chunk);
+                if (!used_cache && verbose_flag) {
+                    fprintf(stderr, "Cache miss: %s\n", pscalCacheLastLoadError());
+                }
             }
             if (dep_array) {
                 free(dep_array);
