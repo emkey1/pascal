@@ -1,0 +1,23 @@
+program NotIntegerBitwiseTest;
+{ `not` on an integer is bitwise, at the operand's width. It was logical:
+  `not 5` printed FALSE and `j := not i` stored 0. }
+var i, j: integer; b: byte; w: word; q: int64; u: qword;
+begin
+  i := 5;
+  j := not i;
+  writeln(j);
+  writeln(not 0);
+  writeln((not i) and 255);
+  b := 5;
+  writeln(not b);
+  b := not b;
+  writeln(b);
+  w := 1;
+  writeln(not w);
+  q := 0;
+  writeln(not q);
+  u := 0;
+  writeln(not u);
+  writeln(not true);
+  if not (i > 3) then writeln('no') else writeln('yes');
+end.

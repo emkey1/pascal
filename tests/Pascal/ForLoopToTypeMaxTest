@@ -1,0 +1,43 @@
+program ForLoopToTypeMaxTest;
+{ A for loop whose bound is its variable's last value. The loop stepped the
+  variable and then compared, so the step wrapped (byte 255 + 1) or
+  overflowed (maxint + 1) and the loop never ended. Each loop below breaks
+  after 20 passes so a regression fails instead of hanging. A loop that ran
+  to its bound still leaves the variable one past it, where the type can
+  hold that value. }
+type Color = (red, green, blue);
+var b: byte; i, n: integer; s: shortint; c: Color; ch: char; bo: boolean;
+begin
+  n := 0;
+  for b := 250 to 255 do begin n := n + 1; if n > 20 then break; end;
+  writeln('byte to 255: ', n);
+  n := 0;
+  for b := 5 downto 0 do begin n := n + 1; if n > 20 then break; end;
+  writeln('byte downto 0: ', n);
+  n := 0;
+  for i := 2147483645 to 2147483647 do begin n := n + 1; if n > 20 then break; end;
+  writeln('integer to max: ', n);
+  n := 0;
+  for s := -126 downto -128 do begin n := n + 1; if n > 20 then break; end;
+  writeln('shortint downto -128: ', n);
+  n := 0;
+  for ch := #250 to #255 do begin n := n + 1; if n > 20 then break; end;
+  writeln('char to #255: ', n);
+  for c := red to blue do write(ord(c), ' ');
+  writeln;
+  for i := 1 to 10 do begin if odd(i) then continue; write(i, ' '); end;
+  writeln;
+  n := 0;
+  for i := 5 to 4 do n := n + 1;
+  writeln('empty: ', n, ' i=', i);
+  n := 0;
+  for bo := false to true do begin n := n + 1; if n > 20 then break; end;
+  writeln('boolean: ', n);
+  writeln('after: b=', b, ' s=', s, ' ch=', ord(ch), ' c=', ord(c), ' bo=', bo);
+  for i := 1 to 3 do begin end;
+  for b := 1 to 10 do begin end;
+  for c := red to green do begin end;
+  writeln('successor: i=', i, ' b=', b, ' c=', ord(c));
+  for i := 1 to 3 do if i = 2 then break;
+  writeln('break: i=', i);
+end.

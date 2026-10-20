@@ -1,0 +1,12 @@
+byte to 255: 6
+byte downto 0: 6
+integer to max: 3
+shortint downto -128: 3
+char to #255: 6
+0 1 2 
+2 4 6 8 10 
+empty: 0 i=5
+boolean: 2
+after: b=0 s=-128 ch=255 c=2 bo=TRUE
+successor: i=4 b=11 c=2
+break: i=2

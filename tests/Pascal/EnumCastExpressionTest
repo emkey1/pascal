@@ -1,0 +1,31 @@
+program EnumCastExpressionTest;
+{ An enum cast T(k) used as a value. It compiled to k itself, so only a
+  store into an enum variable converted it: `T(k) = rb` failed with
+  "Operands not comparable" and succ(T(0)) printed 1. }
+type T = (ra, rb, rc);
+     U = (ua, ub);
+var k: integer; e: T; u: U;
+
+procedure Show(x: T);
+begin
+  writeln('show ', x);
+end;
+
+begin
+  k := 1;
+  if T(k) = rb then writeln('eq rb') else writeln('neq');
+  writeln(succ(T(0)));
+  writeln(T(k));
+  e := T(2);
+  writeln(e);
+  writeln(T(e));
+  u := ub;
+  writeln(T(u));
+  writeln(ord(T(2)));
+  Show(T(k + 1));
+  case T(k) of
+    ra: writeln('case ra');
+    rb: writeln('case rb');
+  end;
+  writeln(T(true));
+end.

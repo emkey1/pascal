@@ -1,0 +1,13 @@
+program FormatWideFieldTest;
+{ Field widths and precisions past 255. FORMAT_VALUE's operands are bytes,
+  so `s:300` printed with width 300 & 255 = 44. }
+var s: string; r: real;
+begin
+  s := 'ab';
+  writeln('[', s:300, ']');
+  writeln('[', 7:256, ']');
+  r := 1.5;
+  writeln('[', r:4:260, ']');
+  writeln('[', s:255, ']');
+  writeln('[', 42:3, ']');
+end.

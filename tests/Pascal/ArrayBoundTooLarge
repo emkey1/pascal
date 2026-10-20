@@ -1,0 +1,6 @@
+program ArrayBoundTooLarge;
+{ The VM keeps array bounds in 32 bits; this array became [1..1]. }
+var a: array[1..4294967297] of byte;
+begin
+  writeln(low(a), ' ', high(a));
+end.

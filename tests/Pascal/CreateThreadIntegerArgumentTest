@@ -1,0 +1,25 @@
+program CreateThreadIntegerArgumentTest;
+{ CreateThread(@P, <integer>) passes the integer. The call compiled to
+  [addr, arg], which the VM read as a spawn's [addr, ..., argc]: an argument
+  of 3 popped three arguments and failed with a stack underflow. }
+var t: integer;
+
+procedure Worker(p: integer);
+begin
+  writeln('worker got ', p);
+end;
+
+procedure NoArgs;
+begin
+  writeln('no args');
+end;
+
+begin
+  t := CreateThread(@Worker, 3);
+  WaitForThread(t);
+  t := CreateThread(@Worker, 0);
+  WaitForThread(t);
+  t := CreateThread(@NoArgs, 5);
+  WaitForThread(t);
+  writeln('done');
+end.

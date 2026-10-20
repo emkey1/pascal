@@ -1,0 +1,39 @@
+program ThreadOutlivesSpawnerTest;
+{ A thread running a nested routine that outlives the routine which spawned
+  it. Its captured variables were the spawner's stack slots, which the next
+  call reused: the worker read and wrote that call's locals. }
+var tid, gCount: integer;
+    gMsg: string;
+
+procedure Start;
+var count: integer;
+    msg: string;
+  procedure Worker;
+  begin
+    Delay(100);
+    count := count + 1;
+    msg := msg + '!';
+    gCount := count;
+    gMsg := msg;
+  end;
+begin
+  count := 41;
+  msg := 'hi';
+  tid := spawn Worker;
+end;
+
+procedure Noise;
+var a, b, c, d: integer;
+    t: string;
+begin
+  a := 7; b := 8; c := 9; d := 10; t := 'noise';
+  Delay(300);
+  writeln('noise ', a, ' ', b, ' ', c, ' ', d, ' ', t);
+end;
+
+begin
+  Start;
+  Noise;
+  join tid;
+  writeln('worker count=', gCount, ' msg=', gMsg);
+end.

@@ -1,0 +1,19 @@
+program FpcIntegerAliasesTest;
+{ FPC's longword and fixed-width integer names (int8 .. uint32). }
+var a: longword; b: int8; c: uint8; d: int16; e: uint16; f: int32; g: uint32;
+
+procedure P(x: longword; y: int8);
+var loc: int8;
+begin
+  loc := y;
+  writeln('P ', x, ' ', loc);
+end;
+
+begin
+  a := 4000000000;
+  b := -5;
+  c := 200; d := -300; e := 60000; f := -70000; g := 4000000001;
+  writeln(a, ' ', b, ' ', c, ' ', d, ' ', e, ' ', f, ' ', g);
+  writeln(high(longword), ' ', low(int8), ' ', high(int8));
+  P(a, b);
+end.

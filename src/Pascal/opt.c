@@ -119,6 +119,43 @@ static AST* foldBinary(AST* node) {
     return newNode;
 }
 
+// `not` on an integer is bitwise, at the operand's own width (`not b` for a
+// byte 5 is 250). Annotation types every `not` Boolean and the VM's NOT is
+// logical, so `not 5` printed FALSE and `j := not i` stored 0. Rewrite it as
+// an xor with the type's all-ones value; -1 covers the signed types and
+// qword (an xor with a qword operand stays qword).
+static AST* rewriteIntegerNot(AST* node) {
+    if (!node || node->type != AST_UNARY_OP || !node->token || node->token->type != TOKEN_NOT ||
+        !node->left || !isIntegerFamilyType(node->left->var_type)) {
+        return node;
+    }
+    const char* mask = "-1";
+    switch (node->left->var_type) {
+        case TYPE_BYTE:
+        case TYPE_UINT8:  mask = "255"; break;
+        case TYPE_WORD:
+        case TYPE_UINT16: mask = "65535"; break;
+        case TYPE_UINT32: mask = "4294967295"; break;
+        default: break;
+    }
+    int line = node->token->line;
+    int col = node->token->column;
+    Token* xt = newToken(TOKEN_XOR, "xor", line, col);
+    AST* x = newASTNode(AST_BINARY_OP, xt);
+    freeToken(xt);
+    Token* mt = newToken(TOKEN_INTEGER_CONST, mask, line, col);
+    AST* m = newASTNode(AST_NUMBER, mt);
+    freeToken(mt);
+    setTypeAST(m, strcmp(mask, "4294967295") == 0 ? TYPE_INT64 : TYPE_INTEGER);
+    setLeft(x, node->left);
+    node->left = NULL;
+    setRight(x, m);
+    setTypeAST(x, x->left->var_type);
+    x->type_def = x->left->type_def;
+    freeAST(node);
+    return x;
+}
+
 static AST* foldUnary(AST* node) {
     double v; int vf;
     if (!isConst(node->left, &v, &vf)) return node;
@@ -184,7 +221,11 @@ static AST* optimizeNode(AST* node) {
 
     switch (node->type) {
         case AST_BINARY_OP: return foldBinary(node);
-        case AST_UNARY_OP: return foldUnary(node);
+        case AST_UNARY_OP: {
+            AST* rewritten = rewriteIntegerNot(node);
+            if (rewritten != node) return rewritten;
+            return foldUnary(node);
+        }
         case AST_IF: {
             double cond; int cf;
             if (isConst(node->left, &cond, &cf)) {

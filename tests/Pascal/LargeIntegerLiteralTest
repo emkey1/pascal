@@ -1,0 +1,23 @@
+program LargeIntegerLiteralTest;
+{ Integer literals past 32 and 63 bits. A constant past 32 bits kept only 32
+  (`const X = 3000000000` was -1294967296, `$FFFFFFFF` was -1), and a
+  literal past INT64_MAX was clamped to it. }
+const X = 3000000000;
+      Y = 4294967297;
+      M = $FFFFFFFF;
+      Big = 18446744073709551615;
+var q: qword; a: array[0..Y - 4294967290] of integer;
+begin
+  writeln(X);
+  writeln(Y);
+  writeln(M);
+  writeln(high(a));
+  q := 18446744073709551615;
+  writeln(q);
+  q := Big;
+  writeln(q);
+  writeln(18446744073709551615);
+  q := 9223372036854775808;
+  writeln(q);
+  writeln(q div 2);
+end.

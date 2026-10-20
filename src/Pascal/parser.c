@@ -834,6 +834,14 @@ AST *parseArrayType(Parser *parser) {
         Value upper_eval = evaluateCompileTimeValue(upper_expr_node);
 
         bool ok = validateSubrangeBounds(parser, &lower_eval, &upper_eval, &resolvedType);
+        // The VM keeps array bounds as 32-bit ints; `array[1..4294967297]`
+        // used to become [1..1] without a word.
+        if (ok && isIntegerFamilyType(lower_eval.type) && isIntegerFamilyType(upper_eval.type) &&
+            (coerceToI64(&lower_eval, NULL, "array lower bound") < INT32_MIN ||
+             coerceToI64(&upper_eval, NULL, "array upper bound") > INT32_MAX)) {
+            errorParser(parser, "Array bounds must lie within -2147483648..2147483647");
+            ok = false;
+        }
         freeValue(&lower_eval);
         freeValue(&upper_eval);
         if (!ok) {

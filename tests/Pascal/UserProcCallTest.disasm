@@ -50,22 +50,36 @@ Offset Line Opcode           Operand  Value / Target (Args)
 0115    | GET_GSLOT           2 'i'
 0118    | PUSH_IMM_I8         3
 0120    | LESS_EQUAL
-0121    | JUMP_IF_FALSE      27 (to 0153)
+0121    | JUMP_IF_FALSE      59 (to 0185)
 0126   25 GET_GSLOT           2 'i'
 0129    | GET_GSLOT_ADDRESS    1 'data'
 0132    | LOAD_ELEMENT_VALUE    1 (dims)
 0134    | CALL_USER_PROC      15 'printvalue' @0046 (1 args)
 0138   24 GET_GSLOT           2 'i'
-0141    | CONST_1
-0142    | ADD
-0143    | GET_GSLOT_ADDRESS    2 'i'
-0146    | SWAP
-0147    | SET_INDIRECT
-0148    | JUMP              -38 (to 0115)
-0153    1 HALT
+0141    | PUSH_IMM_I8         3
+0143    | LESS
+0144    | JUMP_IF_FALSE      15 (to 0164)
+0149    | GET_GSLOT           2 'i'
+0152    | CONST_1
+0153    | ADD
+0154    | GET_GSLOT_ADDRESS    2 'i'
+0157    | SWAP
+0158    | SET_INDIRECT
+0159    | JUMP              -38 (to 0126)
+0164    | GET_GSLOT           2 'i'
+0167    | CONSTANT           16 '2147483647'
+0169    | LESS
+0170    | JUMP_IF_FALSE      10 (to 0185)
+0175    | GET_GSLOT           2 'i'
+0178    | CONST_1
+0179    | ADD
+0180    | GET_GSLOT_ADDRESS    2 'i'
+0183    | SWAP
+0184    | SET_INDIRECT
+0185    1 HALT
 == End Disassembly: Pascal/UserProcCallTest ==
 
-Constants (16):
+Constants (17):
   0000: STR   "myself"
   0001: NIL
   0002: STR   ""
@@ -82,4 +96,5 @@ Constants (16):
   0013: STR   "doubleit"
   0014: INT   4
   0015: STR   "printvalue"
+  0016: INT   2147483647
 

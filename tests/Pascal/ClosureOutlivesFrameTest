@@ -1,0 +1,63 @@
+program ClosureOutlivesFrameTest;
+{ A nested routine passed as an argument and kept past its parent's return.
+  The closure pointed at the parent's dead stack slots: it read whatever the
+  next call left there and wrote into that call's locals. The VM now moves a
+  returning frame's captured slots into heap cells, shared by every closure
+  that captured them. }
+type TProc = procedure;
+var inc1, show1, deep: TProc;
+
+procedure Keep(a, b: TProc);
+begin
+  inc1 := a;
+  show1 := b;
+end;
+
+procedure KeepDeep(p: TProc);
+begin
+  deep := p;
+end;
+
+procedure Outer;
+var n: integer;
+    s: string;
+  procedure Bump;
+  begin
+    n := n + 1;
+    s := s + '+';
+  end;
+  procedure Show;
+    procedure Inner;
+    begin
+      writeln('inner n=', n, ' s=', s);
+    end;
+  begin
+    writeln('show n=', n, ' s=', s);
+    KeepDeep(@Inner);
+  end;
+begin
+  n := 10;
+  s := 'a';
+  Keep(@Bump, @Show);
+  inc1();
+  writeln('outer n=', n, ' s=', s);
+end;
+
+procedure Noise;
+var a, b, c, d, e: integer;
+    t: string;
+begin
+  a := 1; b := 2; c := 3; d := 4; e := 5; t := 'noise';
+  inc1();
+  writeln('noise ', a, ' ', b, ' ', c, ' ', d, ' ', e, ' ', t);
+end;
+
+begin
+  Outer;
+  Noise;
+  inc1();
+  show1();
+  deep();
+  inc1();
+  deep();
+end.

@@ -1,0 +1,5 @@
+outer n=11 s=a+
+noise 1 2 3 4 5 noise
+show n=13 s=a+++
+inner n=13 s=a+++
+inner n=14 s=a++++
