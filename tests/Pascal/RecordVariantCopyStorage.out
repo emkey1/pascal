@@ -1,0 +1,9 @@
+disc 0 7 7
+a.radius=7 b.radius=9 b.w=9
+area b=36 b.w after=9
+b.w via radius alias=109 a.radius=7
+1 disc 10 10 [,tag1,]
+2 disc 20 20 [,,tag2]
+3 disc 30 30 [tag3,,]
+4 disc 40 40 [,tag4,]
+bx 3 999 999 changed

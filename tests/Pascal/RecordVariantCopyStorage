@@ -1,0 +1,64 @@
+program RecordVariantCopyStorage;
+{ A record's fields live in one block, and variant fields that overlay the
+  same storage share one cell (pscal-core RecordObj, 2026-10-20). A copy --
+  assignment, a by-value parameter, an element of a copied array -- must
+  keep that sharing within the copy and never with the original, and a VAR
+  parameter naming one variant field must reach the others. }
+type
+  TShape = (Circle, Rect);
+  TFig = record
+    name: string;
+    case kind: TShape of
+      Circle: (radius: integer);
+      Rect: (w, h: integer);
+  end;
+  TBox = record
+    id: integer;
+    fig: TFig;
+    tags: array[1..3] of string;
+  end;
+var
+  a, b: TFig;
+  boxes: array[1..4] of TBox;
+  bx: TBox;
+  i: integer;
+
+procedure Bump(var x: integer);
+begin
+  x := x + 100;
+end;
+
+function Area(f: TFig): integer;
+begin
+  if f.kind = Circle then Area := 3 * f.radius * f.radius
+  else Area := f.w * f.h;
+  f.w := -1;
+end;
+
+begin
+  a.name := 'disc';
+  a.kind := Circle;
+  a.radius := 7;
+  writeln(a.name, ' ', ord(a.kind), ' ', a.radius, ' ', a.w);
+  b := a;
+  b.w := 9;
+  writeln('a.radius=', a.radius, ' b.radius=', b.radius, ' b.w=', b.w);
+  b.kind := Rect; b.h := 4;
+  writeln('area b=', Area(b), ' b.w after=', b.w);
+  Bump(b.radius);
+  writeln('b.w via radius alias=', b.w, ' a.radius=', a.radius);
+  for i := 1 to 4 do
+  begin
+    boxes[i].id := i;
+    boxes[i].fig := a;
+    boxes[i].fig.radius := i * 10;
+    boxes[i].tags[i mod 3 + 1] := 'tag' + IntToStr(i);
+  end;
+  bx := boxes[3];
+  bx.fig.radius := 999;
+  bx.tags[1] := 'changed';
+  for i := 1 to 4 do
+    writeln(boxes[i].id, ' ', boxes[i].fig.name, ' ', boxes[i].fig.radius, ' ',
+            boxes[i].fig.w, ' [', boxes[i].tags[1], ',', boxes[i].tags[2], ',', boxes[i].tags[3], ']');
+  writeln('bx ', bx.id, ' ', bx.fig.radius, ' ', bx.fig.w, ' ', bx.tags[1]);
+end.
