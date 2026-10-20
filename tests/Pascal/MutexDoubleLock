@@ -1,0 +1,12 @@
+program MutexDoubleLock;
+{ Locking a (non-recursive) mutex the caller already holds is an error,
+  not a silent deadlock. }
+var
+  m: integer;
+begin
+  m := mutex();
+  lock(m);
+  writeln('locked once');
+  lock(m);
+  writeln('UNREACHABLE');
+end.

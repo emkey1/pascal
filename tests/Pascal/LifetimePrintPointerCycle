@@ -1,0 +1,24 @@
+program LifetimePrintPointerCycle;
+{ Printing a self-referencing pointer stops after a few levels. }
+type
+  PNode = ^Node;
+  Node = record v: integer; next: PNode; end;
+var p: PNode; f: text; line: string; depth, i: integer;
+begin
+  new(p);
+  p^.v := 1;
+  p^.next := p;
+  assign(f, 'LifetimePrintPointerCycle.tmp');
+  rewrite(f);
+  writeln(f, p);
+  close(f);
+  reset(f);
+  readln(f, line);
+  close(f);
+  erase(f);
+  depth := 0;
+  for i := 1 to length(line) do
+    if copy(line, i, 7) = 'RECORD{' then depth := depth + 1;
+  writeln('records printed: ', depth);
+  writeln('ends with: ', copy(line, length(line) - 8, 9));
+end.

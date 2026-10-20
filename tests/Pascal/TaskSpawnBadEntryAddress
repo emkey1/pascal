@@ -1,0 +1,11 @@
+program TaskSpawnBadEntryAddress;
+{ An integer passed to TaskSpawn must be a procedure's entry address: it
+  used to be jumped to unchecked, running bytes past the end of the code or
+  crashing the VM. }
+var
+  t: task;
+begin
+  writeln('spawning');
+  t := TaskSpawn(3000);
+  writeln('UNREACHABLE');
+end.

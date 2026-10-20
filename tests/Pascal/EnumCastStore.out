@@ -1,0 +1,4 @@
+f = rb: TRUE
+ord(f) = 1
+f = rb
+f > rb: TRUE

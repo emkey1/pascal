@@ -1,0 +1,92 @@
+program FileCopyOwnership;
+{ Copies of a file value (a by-value Text parameter, a record or array
+  holding a Text that is copied) share the original's handle; freeing a copy
+  must not close or free the caller's file. }
+type
+  R = record
+    f: Text;
+    n: integer;
+  end;
+var
+  f: Text;
+  g: R;
+  arr: array[1..2] of Text;
+  s: string;
+  i: integer;
+
+procedure WriteVia(t: Text; msg: string);
+begin
+  writeln(t, msg);
+end;
+
+procedure ReadVia(t: Text);
+var
+  line: string;
+begin
+  readln(t, line);
+  writeln('read: ', line);
+end;
+
+procedure CopyRec;
+var
+  b: R;
+begin
+  b := g;
+  b.n := 2;
+  writeln(b.f, 'via record copy ', b.n);
+end;
+
+procedure CopyArr;
+var
+  a2: array[1..2] of Text;
+begin
+  a2 := arr;
+  writeln(a2[1], 'via array copy');
+end;
+
+begin
+  assign(f, 'fco_a.txt');
+  rewrite(f);
+  WriteVia(f, 'one');
+  WriteVia(f, 'two');
+  writeln(f, 'three');
+  close(f);
+  reset(f);
+  ReadVia(f);
+  ReadVia(f);
+  readln(f, s);
+  writeln('main read: ', s);
+  close(f);
+  erase(f);
+
+  assign(g.f, 'fco_b.txt');
+  rewrite(g.f);
+  g.n := 1;
+  CopyRec;
+  CopyRec;
+  writeln(g.f, 'direct ', g.n);
+  close(g.f);
+  reset(g.f);
+  while not eof(g.f) do
+  begin
+    readln(g.f, s);
+    writeln('g: ', s);
+  end;
+  close(g.f);
+  erase(g.f);
+
+  assign(arr[1], 'fco_c.txt');
+  rewrite(arr[1]);
+  CopyArr;
+  writeln(arr[1], 'direct');
+  close(arr[1]);
+  reset(arr[1]);
+  for i := 1 to 2 do
+  begin
+    readln(arr[1], s);
+    writeln('arr: ', s);
+  end;
+  close(arr[1]);
+  erase(arr[1]);
+  writeln('done');
+end.

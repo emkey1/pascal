@@ -1,0 +1,11 @@
+program LifetimeIndexThroughChar;
+{ Indexing a string character again: reading treats the character as a
+  one-character string; writing through it is a runtime error. }
+var s: string; c: char;
+begin
+  s := 'abc';
+  c := s[2][1];
+  writeln(c);
+  s[2][1] := 'x';
+  writeln(s);
+end.

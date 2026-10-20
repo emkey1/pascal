@@ -1,0 +1,10 @@
+program BuiltinsLowHighInt64Types;
+{ High(QWord) and Low(Int64) were "not supported" by the High/Low builtins.
+  NOTE: written against the integrated tree (unboxed Int64); on pscal-core
+  1bef6e7 alone this program crashes in the compiler while it folds the
+  64-bit type argument into a constant (boxed Int64 with no box), before
+  the builtin runs. }
+begin
+  writeln(low(int64), ' ', high(int64));
+  writeln(low(qword), ' ', high(qword));
+end.

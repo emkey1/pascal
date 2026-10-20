@@ -1,0 +1,79 @@
+program LifetimeRecordAssignVarAlias;
+{ Whole-record assignment keeps the record's storage, so a VAR parameter
+  aliasing one of its fields (or a nested field, a static array element,
+  a string character) stays valid across it. }
+type
+  TInner = record a: integer; name: string; end;
+  TRec = record x: integer; inner: TInner; arr: array[1..3] of integer; s: string; end;
+var g, blank, other: TRec;
+
+procedure TouchX(var v: integer);
+begin
+  g := blank;
+  v := 7;
+end;
+
+procedure TouchInner(var v: integer);
+begin
+  g := other;
+  v := 9;
+end;
+
+procedure TouchArr(var v: integer);
+begin
+  g := other;
+  v := 11;
+end;
+
+procedure TouchName(var c: char);
+begin
+  g := other;
+  c := 'W';
+end;
+
+procedure ByValue(r: TRec);
+begin
+  g := blank;
+  writeln('byvalue r.x=', r.x, ' r.s=', r.s, ' g.x=', g.x);
+end;
+
+procedure SelfAssign(var v: integer);
+begin
+  g := g;
+  v := 3;
+end;
+
+procedure LocalRecord;
+var cur, reset: TRec;
+  procedure Touch(var v: integer);
+  begin
+    cur := reset;
+    v := 13;
+  end;
+begin
+  cur.x := 1;
+  reset.s := 'reset';
+  Touch(cur.x);
+  writeln('local cur.x=', cur.x, ' cur.s=', cur.s);
+end;
+
+begin
+  blank.x := 0; blank.s := 'blank';
+  other.x := 5; other.inner.a := 50; other.inner.name := 'other';
+  other.arr[2] := 22; other.s := 'oth';
+  g.x := 1;
+  TouchX(g.x);
+  writeln('g.x=', g.x, ' g.s=', g.s);
+  TouchInner(g.inner.a);
+  writeln('g.inner.a=', g.inner.a, ' name=', g.inner.name, ' x=', g.x);
+  TouchArr(g.arr[2]);
+  writeln('g.arr[2]=', g.arr[2], ' other.arr[2]=', other.arr[2]);
+  TouchName(g.inner.name[1]);
+  writeln('g.inner.name=', g.inner.name, ' other.inner.name=', other.inner.name);
+  g.x := 42; g.s := 'gee';
+  ByValue(g);
+  writeln('after g.x=', g.x, ' g.s=', g.s);
+  SelfAssign(g.x);
+  writeln('self g.x=', g.x);
+  LocalRecord;
+end.

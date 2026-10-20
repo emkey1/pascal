@@ -1,0 +1,32 @@
+program ThreadNestedWaitForThread;
+{ A thread that starts a thread and waits for it: the inner thread was put
+  in the outer worker's own pool while WaitForThread looked in the root
+  pool, where the same number named the outer thread itself, so the outer
+  thread waited for itself forever. }
+uses Threading;
+var
+  flag: integer;
+  otid: integer;
+  st: integer;
+
+procedure Inner(arg: pointer);
+begin
+  Delay(50);
+  flag := 1;
+end;
+
+procedure Outer(arg: pointer);
+var
+  tid, s: integer;
+begin
+  tid := SpawnProcedure(@Inner, nil);
+  s := WaitForThread(tid);
+  writeln('outer: wait status=', s, ' flag=', flag);
+end;
+
+begin
+  flag := 0;
+  otid := SpawnProcedure(@Outer, nil);
+  st := WaitForThread(otid);
+  writeln('main: wait status=', st, ' flag=', flag);
+end.

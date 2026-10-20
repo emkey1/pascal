@@ -1,0 +1,13 @@
+program BuiltinsChannelCapacity;
+{ ChannelCreate(2^60): the buffer size 16 * 2^60 wrapped to 0, a tiny block
+  was allocated and initialising 2^60 slots ran off its end. }
+var
+  ch: channel;
+  n: int64;
+begin
+  ch := ChannelCreate(4);
+  writeln('created 4');
+  n := 1152921504606846976;
+  ch := ChannelCreate(n);
+  writeln('created 2^60');
+end.

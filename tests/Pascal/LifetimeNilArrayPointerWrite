@@ -1,0 +1,10 @@
+program LifetimeNilArrayPointerWrite;
+type TA = array[1..10] of integer;
+     PA = ^TA;
+var p: PA; i: integer;
+begin
+  p := nil;
+  i := 3;
+  p^[i] := 5;
+  writeln('unreachable');
+end.

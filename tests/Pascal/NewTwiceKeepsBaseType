@@ -1,0 +1,47 @@
+program NewTwiceKeepsBaseType;
+{ new(p) must keep the pointer variable's declared pointee type: a second
+  new(p) (or one inside a loop) still allocates a record. }
+type
+  PNode = ^Node;
+  Node = record
+    v: integer;
+    next: PNode;
+  end;
+var
+  p, head: PNode;
+  i, sum: integer;
+begin
+  new(p);
+  p^.v := 1;
+  new(p);
+  p^.v := 2;
+  writeln('second new: ', p^.v);
+  dispose(p);
+
+  head := nil;
+  for i := 1 to 5 do
+  begin
+    new(p);
+    p^.v := i;
+    p^.next := head;
+    head := p;
+  end;
+  sum := 0;
+  p := head;
+  while p <> nil do
+  begin
+    sum := sum + p^.v;
+    p := p^.next;
+  end;
+  writeln('list sum: ', sum);
+
+  i := 0;
+  while i < 3 do
+  begin
+    new(p);
+    p^.v := i * 10;
+    writeln('while: ', p^.v);
+    dispose(p);
+    i := i + 1;
+  end;
+end.

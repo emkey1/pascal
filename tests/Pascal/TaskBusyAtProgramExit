@@ -1,0 +1,21 @@
+program TaskBusyAtProgramExit;
+{ A task still running when the program ends is stopped: program exit used
+  to wait for it forever. }
+var
+  t: task;
+  spins: integer;
+
+function Spin(n: integer): integer;
+begin
+  while true do
+    spins := spins + 1;
+  Spin := n;
+end;
+
+begin
+  spins := 0;
+  t := TaskSpawn('Spin', 1);
+  while spins = 0 do
+    Delay(5);
+  writeln('main done');
+end.

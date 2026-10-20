@@ -1,0 +1,25 @@
+program BuiltinsRandomLarge;
+{ Random(n) drew from rand_r's 31 bits with `% n`: for n beyond 2^31 it
+  never returned 2^31 or more. }
+var
+  i: integer;
+  big, r: int64;
+  ok, wide: boolean;
+begin
+  big := 1099511627776; { 2^40 }
+  ok := true;
+  wide := false;
+  for i := 1 to 50 do
+  begin
+    r := random(big);
+    if (r < 0) or (r >= big) then ok := false;
+    if r >= 2147483648 then wide := true;
+  end;
+  writeln(ok, ' ', wide);
+  for i := 1 to 1000 do
+  begin
+    r := random(10);
+    if (r < 0) or (r > 9) then ok := false;
+  end;
+  writeln(ok);
+end.

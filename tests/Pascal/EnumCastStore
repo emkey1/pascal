@@ -1,0 +1,12 @@
+program EnumCastStore;
+type T = (ra, rb, rc);
+var f: T; k: integer;
+begin
+  k := 1;
+  f := T(k);
+  writeln('f = rb: ', f = rb);
+  writeln('ord(f) = ', ord(f));
+  writeln('f = ', f);
+  f := T(2);
+  writeln('f > rb: ', f > rb);
+end.

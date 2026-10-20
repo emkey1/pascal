@@ -1,0 +1,8 @@
+g.x=7 g.s=blank
+g.inner.a=9 name=other x=5
+g.arr[2]=11 other.arr[2]=22
+g.inner.name=other other.inner.name=other
+byvalue r.x=42 r.s=gee g.x=0
+after g.x=0 g.s=blank
+self g.x=3
+local cur.x=13 cur.s=reset

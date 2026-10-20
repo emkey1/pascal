@@ -1,0 +1,8 @@
+program SetRangeTooLarge;
+var lo, hi: integer;
+begin
+  lo := 0; hi := 2147483647;
+  writeln('before');
+  writeln(5 in [lo..hi]);
+  writeln('not reached');
+end.

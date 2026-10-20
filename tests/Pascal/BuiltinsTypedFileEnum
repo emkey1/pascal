@@ -1,0 +1,33 @@
+program BuiltinsTypedFileEnum;
+{ `file of Color` was written as zero bytes, and Read parsed typed binary
+  files as text, so every element read back as 0. }
+type
+  Color = (Red, Green, Blue);
+var
+  fc: file of Color;
+  fi: file of integer;
+  c: Color;
+  i, j: integer;
+begin
+  assign(fc, 'builtins_enum.tmp');
+  rewrite(fc);
+  c := Blue; write(fc, c);
+  c := Green; write(fc, c);
+  close(fc);
+  reset(fc);
+  c := Red; read(fc, c); write(ord(c), ' ');
+  c := Red; read(fc, c); writeln(ord(c));
+  c := Red; read(fc, c); writeln('past end: ', ord(c), ' io=', IOResult);
+  close(fc);
+  erase(fc);
+  assign(fi, 'builtins_int.tmp');
+  rewrite(fi);
+  i := 258; write(fi, i);
+  i := -7; write(fi, i);
+  close(fi);
+  reset(fi);
+  read(fi, j); write(j, ' ');
+  read(fi, j); writeln(j);
+  close(fi);
+  erase(fi);
+end.

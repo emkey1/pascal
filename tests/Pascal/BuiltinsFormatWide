@@ -1,0 +1,30 @@
+program BuiltinsFormatWide;
+{ Format cut every piece at 255 characters and passed an Int64 to "%d" as
+  an int (5000000000 printed as 705032704); FormatFloat, RealToStr and Str
+  formatted reals into fixed buffers (FormatFloat(1e200, 2) was a runtime
+  error, Str(1e300) kept 63 digits). }
+uses SysUtils;
+var
+  s, t: string;
+  i: integer;
+  big: int64;
+  r: real;
+begin
+  s := '';
+  for i := 1 to 40 do s := s + 'abcdefghij';
+  t := Format('%s|', [s]);
+  writeln(length(s), ' ', length(t), ' ', copy(t, 398, 4));
+  big := 5000000000;
+  writeln(Format('%d %x %u', [big, big, big]));
+  writeln(Format('%ld|%5.1Lf|%c', [big, 2.25, 65]));
+  writeln(length(Format('%300d|', [1])));
+  r := 1e200;
+  writeln(length(FormatFloat(r, 2)));
+  writeln(length(RealToStr(r)));
+  r := 1e300;
+  Str(r, s);
+  writeln(length(s), ' ', copy(s, 1, 4));
+  r := 3.25;
+  Str(r, s);
+  writeln('[', s, ']');
+end.

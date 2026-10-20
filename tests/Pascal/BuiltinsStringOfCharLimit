@@ -1,0 +1,14 @@
+program BuiltinsStringOfCharLimit;
+{ StringOfChar(c, n) computed n * bytes-per-char without an overflow check:
+  a 4-byte character with n = 2^62 + 1 allocated 5 bytes and then wrote
+  past them. }
+var
+  s: string;
+  n: int64;
+begin
+  s := StringOfChar('x', 5);
+  writeln(s, ' ', length(s));
+  n := 4611686018427387905;
+  s := StringOfChar(chr(128512), n);
+  writeln(length(s));
+end.

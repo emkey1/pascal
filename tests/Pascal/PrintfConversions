@@ -1,0 +1,23 @@
+program PrintfConversions;
+var s: string; i: integer; big: int64;
+begin
+  s := '';
+  for i := 1 to 30 do s := s + '0123456789';
+  printf('[%s]', s);
+  writeln;
+  printf('[%300d]', 5);
+  writeln;
+  printf('%zd|%Ld|%td|%ju|%tu|%llld', -1, -1, -1, -1, -1, -1);
+  writeln;
+  printf('%hhd|%hhu|%hx|%x|%u', 300, -1, $12345, -1, -1);
+  writeln;
+  big := 5000000000;
+  printf('%d|%lu', big, big);
+  writeln;
+  printf('%.2Lf|%.3f|%lf|%e', 3.14159, 2.5, 1.5, 1000.0);
+  writeln;
+  printf('A[%0000000000000000000000000000000000000000000000000000000000000000000000005d]B', 42);
+  writeln;
+  printf('%-6s|%6s|%c', 'ab', 'cd', 'x');
+  writeln;
+end.

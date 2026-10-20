@@ -1,0 +1,3 @@
+VM Error: Cannot access field: the pointer chain is cyclic.
+[Error Location] Offset: 49, Line: 13
+

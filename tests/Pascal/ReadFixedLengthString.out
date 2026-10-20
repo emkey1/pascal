@@ -1,0 +1,5 @@
+s=abc len=3
+after assign s=abc
+d=second line t=orig
+d=alpha t=keep
+s=bet

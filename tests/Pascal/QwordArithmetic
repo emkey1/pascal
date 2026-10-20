@@ -1,0 +1,31 @@
+program QwordArithmetic;
+var q, h, z: qword; i, m: int64;
+begin
+  q := 0;
+  q := q - 1;
+  writeln('q = ', q);
+  writeln('q > 0: ', q > 0);
+  h := q div 2;
+  writeln('q div 2 = ', h);
+  writeln('q mod 10 = ', q mod 10);
+  i := 9223372036854775807;
+  writeln('q > maxint64: ', q > i);
+  q := 1;
+  q := q shl 63;
+  z := 1;
+  writeln('q = ', q);
+  writeln('q > z: ', q > z);
+  writeln('q > 0: ', q > 0);
+  writeln('q > 1.5: ', q > 1.5);
+  writeln('q div 3 = ', q div 3);
+  h := q - 1;
+  writeln('q - 1 = ', h);
+  h := q + (q - 1);
+  writeln('q + (q - 1) = ', h);
+  writeln('q / 2 = ', q / 2:0:1);
+  { x mod -1 is 0, including the most negative int64 }
+  i := -9223372036854775807;
+  i := i - 1;
+  m := -1;
+  writeln('minint64 mod -1 = ', i mod m);
+end.

@@ -1,0 +1,19 @@
+program TaskSpawnTenArguments;
+{ A task gets every argument: only the first 8 used to be passed, and the
+  task failed with "Local slot index out of range". }
+var
+  t: task;
+
+function Sum10(a, b, c, d, e, f, g, h, i, j: integer): integer;
+var
+  loc: integer;
+begin
+  loc := 1000;
+  Sum10 := a + b + c + d + e + f + g + h + i + j + loc;
+end;
+
+begin
+  writeln('direct = ', Sum10(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+  t := TaskSpawn('Sum10', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+  writeln('task   = ', TaskAwait(t));
+end.

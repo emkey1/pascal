@@ -1,0 +1,19 @@
+program TaskBlockedReceiveAtProgramExit;
+{ A task blocked in ChannelReceive when the program ends is woken and
+  stopped: the channel wait only honoured a cancel, not the kill program
+  exit sends, so exit waited forever. }
+var
+  ch: channel;
+  t: task;
+
+function BlockedReceive(c: channel): integer;
+begin
+  BlockedReceive := ChannelReceive(c);
+end;
+
+begin
+  ch := ChannelCreate(1);
+  t := TaskSpawn('BlockedReceive', ch);
+  Delay(150);
+  writeln('main done');
+end.

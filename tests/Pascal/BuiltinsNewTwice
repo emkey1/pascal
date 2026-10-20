@@ -1,0 +1,13 @@
+program BuiltinsNewTwice;
+{ new(p) on a pointer that already held a value reset it with SET_VALUE_TYPE,
+  orphaning its PointerObj and base type: the second new(p) allocated an
+  Integer and p^.v failed. }
+type PRec = ^TRec; TRec = record v: integer; end;
+var p, q: PRec; i: integer;
+begin
+  new(p); p^.v := 1; q := p;
+  new(p); p^.v := 2;
+  writeln(q^.v, ' ', p^.v);
+  for i := 1 to 3 do begin new(p); p^.v := i * 10; end;
+  writeln(p^.v);
+end.

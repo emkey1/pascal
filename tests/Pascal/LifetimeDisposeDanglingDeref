@@ -1,0 +1,13 @@
+program LifetimeDisposeDanglingDeref;
+type
+  PInt = ^integer;
+  TBox = record p: PInt; end;
+var b: TBox; q: PInt;
+begin
+  new(q);
+  q^ := 5;
+  b.p := q;
+  dispose(q);
+  writeln('q nil: ', q = nil);
+  writeln(b.p^);
+end.

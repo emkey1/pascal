@@ -1,0 +1,11 @@
+program MutexUnlockNotHeld;
+{ Unlocking a mutex the caller does not hold is an error (on glibc it used
+  to release another thread's lock). }
+var
+  m: integer;
+begin
+  m := mutex();
+  writeln('created');
+  unlock(m);
+  writeln('UNREACHABLE');
+end.

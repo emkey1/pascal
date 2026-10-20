@@ -1,0 +1,34 @@
+program LifetimeDisposeQuarantineWrap;
+{ Many new/dispose cycles: the bounded dispose quarantine wraps around. }
+type
+  PNode = ^TNode;
+  TNode = record v: integer; next: PNode; end;
+var head: PNode; i, total: integer;
+
+procedure Cycle(k: integer);
+var n: PNode;
+begin
+  new(n); n^.v := k; n^.next := nil;
+  dispose(n);
+end;
+
+procedure Push(k: integer);
+var n: PNode;
+begin
+  new(n); n^.v := k; n^.next := head; head := n;
+end;
+
+function Pop: integer;
+var p: PNode;
+begin
+  p := head; head := head^.next; Pop := p^.v; dispose(p);
+end;
+
+begin
+  for i := 1 to 10000 do Cycle(i);
+  head := nil;
+  for i := 1 to 5000 do Push(i);
+  total := 0;
+  while head <> nil do total := total + Pop;
+  writeln(total);
+end.

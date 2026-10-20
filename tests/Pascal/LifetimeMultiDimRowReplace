@@ -1,0 +1,17 @@
+program LifetimeMultiDimRowReplace;
+{ SetLength(m, 3, 4) makes three rows of four; assigning a row of another
+  length replaces that row (dynamic-array semantics) and leaves the others. }
+type
+  TMatrix = array of array of Integer;
+  TLinear = array of Integer;
+var m: TMatrix; row: TLinear; i: Integer;
+begin
+  SetLength(m, 3, 4);
+  SetLength(row, 5);
+  for i := 0 to 4 do row[i] := i * 10;
+  m[1] := row;
+  writeln(length(m[0]), ' ', length(m[1]), ' ', length(m[2]));
+  writeln(m[1][4]);
+  m[1][0] := 7;
+  writeln(row[0]);
+end.

@@ -1,0 +1,3 @@
+VM Error: Cannot index through a character, byte or opaque address.
+[Error Location] Offset: 61, Line: 9
+

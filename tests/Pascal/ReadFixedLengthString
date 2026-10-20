@@ -1,0 +1,32 @@
+program ReadFixedLengthString;
+{ Read/Readln into a string[N] keep its cap; reading into a string leaves
+  copies that share its old value alone. }
+type
+  S3 = string[3];
+var
+  s: S3;
+  d, t: string;
+  f: text;
+begin
+  readln(s);
+  writeln('s=', s, ' len=', length(s));
+  s := 'abcdefgh';
+  writeln('after assign s=', s);
+  d := 'orig';
+  t := d;
+  readln(d);
+  writeln('d=', d, ' t=', t);
+  assign(f, 'rfls_tmp.txt');
+  rewrite(f);
+  writeln(f, 'alpha beta');
+  close(f);
+  reset(f);
+  t := 'keep';
+  d := t;
+  read(f, d);
+  writeln('d=', d, ' t=', t);
+  read(f, s);
+  writeln('s=', s);
+  close(f);
+  erase(f);
+end.

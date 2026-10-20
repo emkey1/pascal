@@ -1,0 +1,32 @@
+program BuiltinsBlockIoBounds;
+{ BlockRead/BlockWrite through s[1] or buf[0] had no bound: reading 4096
+  bytes into an 8-character string overran the heap, and writing 100 bytes
+  from an 8-byte array copied whatever followed it into the file. Both now
+  stop at the end of the string or array. }
+var
+  t: text;
+  f: file;
+  s: string;
+  buf: array[0..7] of byte;
+  i, got: integer;
+begin
+  assign(t, 'builtins_block.tmp');
+  rewrite(t);
+  for i := 1 to 100 do write(t, chr(ord('a') + i mod 26));
+  close(t);
+  assign(f, 'builtins_block.tmp');
+  reset(f, 1);
+  s := '12345678';
+  BlockRead(f, s[1], 4096, got);
+  writeln('read got=', got, ' s=', s, ' len=', length(s));
+  close(f);
+  for i := 0 to 7 do buf[i] := 65 + i;
+  rewrite(f, 1);
+  BlockWrite(f, buf[0], 100, got);
+  writeln('write got=', got);
+  close(f);
+  reset(f, 1);
+  writeln('size=', FileSize(f));
+  close(f);
+  erase(f);
+end.

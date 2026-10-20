@@ -1,0 +1,15 @@
+program LifetimePointerCycle;
+{ A pointer chain that loops back on itself is a runtime error, not a hang. }
+type
+  PRec = ^TRec;
+  TRec = record x: integer; end;
+var
+  p: PRec;
+  q: pointer;
+begin
+  q := @q;
+  p := q;
+  writeln('before');
+  writeln(p^.x);
+  writeln('after');
+end.

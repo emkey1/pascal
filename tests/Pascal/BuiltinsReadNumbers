@@ -1,0 +1,33 @@
+program BuiltinsReadNumbers;
+{ Read parsed numbers with no range or junk check ("12x" read as 12,
+  99999999999 into an Integer wrapped to 1215752191), could not read an
+  Int64, Byte or Word at all, and Val into an Extended reported success
+  without storing anything. }
+var
+  f: text;
+  i: integer;
+  b: int64;
+  by: byte;
+  w: word;
+  e: extended;
+  code: integer;
+begin
+  assign(f, 'builtins_nums.tmp');
+  rewrite(f);
+  writeln(f, '12x 99999999999 9000000000 200 300 -5 77');
+  close(f);
+  reset(f);
+  i := -1; read(f, i); writeln('12x: i=', i, ' io=', IOResult);
+  i := -1; read(f, i); writeln('99999999999: i=', i, ' io=', IOResult);
+  read(f, b); writeln('int64: ', b, ' io=', IOResult);
+  by := 1; read(f, by); writeln('byte 200: ', by, ' io=', IOResult);
+  by := 1; read(f, by); writeln('byte 300: ', by, ' io=', IOResult);
+  w := 1; read(f, w); writeln('word -5: ', w, ' io=', IOResult);
+  read(f, i); writeln('77: ', i, ' io=', IOResult);
+  close(f);
+  erase(f);
+  i := 7; Val('99999999999', i, code); writeln('val big: i=', i, ' code=', code);
+  Val('123', i, code); writeln('val ok: i=', i, ' code=', code);
+  by := 9; Val('256', by, code); writeln('val byte 256: ', by, ' code=', code);
+  e := 0; Val('2.5', e, code); writeln('val extended: ', e:0:2, ' code=', code);
+end.

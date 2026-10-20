@@ -1,0 +1,3 @@
+read got=8 s=bcdefghi len=8
+write got=8
+size=8

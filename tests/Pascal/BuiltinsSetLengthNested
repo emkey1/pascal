@@ -1,0 +1,22 @@
+program BuiltinsSetLengthNested;
+{ SetLength(a, n, m) on an array of arrays shaped `a` as an n*m 2-D array
+  of rows (n*m inner arrays), and refused SetLength(a, n, m) after
+  SetLength(a, n). }
+var
+  a: array of array of integer;
+  i, j: integer;
+begin
+  SetLength(a, 3);
+  SetLength(a, 3, 4);
+  writeln(length(a), ' ', length(a[0]), ' ', length(a[2]));
+  for i := 0 to 2 do
+    for j := 0 to 3 do
+      a[i][j] := i * 10 + j;
+  SetLength(a, 4, 2);
+  writeln(length(a), ' ', length(a[0]), ' ', length(a[3]), ' ', a[2][1], ' ', a[1][0], ' ', a[3][1]);
+  SetLength(a, 2, 0);
+  writeln(length(a), ' ', length(a[1]));
+  SetLength(a, 1000, 1000);
+  a[999][999] := 5;
+  writeln(length(a), ' ', length(a[999]), ' ', a[999][999]);
+end.

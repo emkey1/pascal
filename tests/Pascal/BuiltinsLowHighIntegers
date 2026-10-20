@@ -1,0 +1,16 @@
+program BuiltinsLowHighIntegers;
+{ Low()/High() handled only Integer, Byte, Word, Char, Boolean and enums:
+  every other integer type was "not supported". }
+var
+  q: qword;
+  i: int64;
+  s: shortint;
+  c: cardinal;
+begin
+  writeln(low(shortint), ' ', high(shortint));
+  writeln(low(smallint), ' ', high(smallint));
+  writeln(low(cardinal), ' ', high(cardinal));
+  writeln(low(q), ' ', high(q));
+  writeln(low(i), ' ', high(i));
+  writeln(low(s), ' ', high(s), ' ', high(c));
+end.

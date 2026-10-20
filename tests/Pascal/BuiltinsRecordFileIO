@@ -1,0 +1,35 @@
+program BuiltinsRecordFileIO;
+{ Records written to a text file came back wrong: a string field was
+  written raw, so 'Ada Lovelace' read back as 'Ada' and an empty string
+  shifted every later field; an enum field was written as 0 and ignored on
+  reading. }
+type
+  Color = (Red, Green, Blue);
+  Person = record
+    name: string;
+    nick: string;
+    quote: string;
+    age: integer;
+    fav: Color;
+  end;
+var
+  p, q: Person;
+  f: text;
+begin
+  p.name := 'Ada Lovelace';
+  p.nick := '';
+  p.quote := 'it''s  two  spaces';
+  p.age := 36;
+  p.fav := Blue;
+  assign(f, 'builtins_rec.tmp');
+  rewrite(f);
+  write(f, p);
+  close(f);
+  q.name := 'x'; q.nick := 'y'; q.quote := 'z'; q.age := 0; q.fav := Red;
+  reset(f);
+  read(f, q);
+  writeln('io=', IOResult);
+  close(f);
+  erase(f);
+  writeln('[', q.name, '] [', q.nick, '] [', q.quote, '] ', q.age, ' ', ord(q.fav));
+end.

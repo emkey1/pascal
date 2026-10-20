@@ -1,0 +1,35 @@
+program BuiltinsReadlnLongLine;
+{ readln/read used to split a line longer than 1023 bytes into several
+  "lines" (and tokens), leaked the previous string on every call, and
+  ignored a string[N] variable's N. }
+var
+  f: text;
+  s, tok: string;
+  t: string[3];
+  i: integer;
+begin
+  assign(f, 'builtins_longline.tmp');
+  rewrite(f);
+  s := '';
+  for i := 1 to 2000 do s := s + chr(65 + i mod 26);
+  writeln(f, s);
+  writeln(f, 'second');
+  writeln(f, 'abcdefgh');
+  write(f, s, ' tail');
+  close(f);
+  reset(f);
+  readln(f, s);
+  writeln('1: ', length(s), ' ', copy(s, 1995, 6));
+  readln(f, s);
+  writeln('2: ', s);
+  readln(f, t);
+  writeln('3: [', t, '] ', length(t));
+  t := 'xyz';
+  writeln('3b: [', t, ']');
+  read(f, tok);
+  writeln('4: ', length(tok));
+  read(f, tok);
+  writeln('5: ', tok);
+  close(f);
+  erase(f);
+end.

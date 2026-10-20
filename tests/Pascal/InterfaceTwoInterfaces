@@ -1,0 +1,40 @@
+program InterfaceTwoInterfaces;
+type
+  IA = interface
+    procedure Alpha;
+  end;
+  IB = interface
+    procedure Beta;
+  end;
+  PW = ^TW;
+  TW = record
+    value: Integer;
+    procedure Alpha; virtual;
+    procedure Beta; virtual;
+  end;
+  PV = ^TV;
+  TV = record
+    value: Integer;
+    procedure Alpha; virtual;
+  end;
+procedure TW.Alpha; begin writeln('TW.Alpha ', myself^.value); end;
+procedure TW.Beta; begin writeln('TW.Beta ', myself^.value); end;
+procedure TV.Alpha; begin writeln('TV.Alpha ', myself^.value); end;
+var w, w2: PW; v: PV; a: IA; b: IB;
+begin
+  new(w); w^.value := 7;
+  new(w2); w2^.value := 8;
+  new(v); v^.value := 9;
+  b := IB(w);
+  a := IA(w);
+  a.Alpha;
+  b.Beta;
+  a := IA(v);
+  a.Alpha;
+  a := IA(w2);
+  b := IB(w2);
+  a.Alpha;
+  b.Beta;
+  w^.Alpha;
+  w^.Beta;
+end.

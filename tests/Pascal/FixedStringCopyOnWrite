@@ -1,0 +1,77 @@
+program FixedStringCopyOnWrite;
+{ A string[N] variable's buffer is written in place on assignment; a copy
+  that shares it (by-value parameter, assignment to another variable) must
+  keep its own value, and the target keeps its length cap. }
+type
+  S5 = string[5];
+var
+  g: S5;
+  d: string;
+
+procedure ByVal(s: S5);
+begin
+  g := 'zzzzz';
+  writeln('param=', s);
+end;
+
+procedure ByValAssign(x: S5);
+begin
+  x := 'zzz';
+  writeln('callee x=', x);
+end;
+
+procedure Locals;
+var
+  a, b: S5;
+  t: string;
+begin
+  a := 'abc';
+  b := a;
+  a := 'xyz';
+  writeln('a=', a, ' b=', b);
+  t := a;
+  a := 'longer text';
+  writeln('a=', a, ' t=', t);
+  a := a;
+  writeln('self=', a);
+end;
+
+function F: S5;
+  procedure Inner(x: S5);
+  begin
+    F := 'zzz';
+    writeln('x=', x);
+  end;
+begin
+  F := 'abc';
+  Inner(Result);
+end;
+
+procedure Outer;
+var
+  v: S5;
+  procedure Inner2(x: S5);
+  begin
+    v := 'qqq';
+    writeln('x2=', x);
+  end;
+begin
+  v := 'def';
+  Inner2(v);
+  writeln('v=', v);
+end;
+
+begin
+  g := 'hello';
+  ByVal(g);
+  writeln('g=', g);
+  g := 'hello';
+  ByValAssign(g);
+  writeln('caller g=', g);
+  d := g;
+  g := 'abcdefgh';
+  writeln('g=', g, ' d=', d);
+  Locals;
+  writeln('F=', F);
+  Outer;
+end.

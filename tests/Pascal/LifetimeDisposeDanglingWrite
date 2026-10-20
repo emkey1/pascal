@@ -1,0 +1,13 @@
+program LifetimeDisposeDanglingWrite;
+type
+  PNode = ^TNode;
+  TNode = record v: integer; next: PNode; end;
+var a, b: PNode;
+begin
+  new(a); new(b);
+  a^.v := 1; b^.v := 2;
+  a^.next := b;
+  dispose(b);
+  a^.next^.v := 9;
+  writeln(a^.v);
+end.

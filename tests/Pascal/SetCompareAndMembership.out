@@ -1,0 +1,20 @@
+a = b: TRUE
+a <> b: FALSE
+[1] <= a: TRUE
+a <= [1]: FALSE
+a >= [2, 3]: TRUE
+[] <= a: TRUE
+b = []: TRUE
+a = []: FALSE
+cs = [red, blue]: TRUE
+cs <> [red]: TRUE
+int64 in: TRUE
+shortint in: TRUE
+smallint in: TRUE
+cardinal in: TRUE
+longint in: TRUE
+widechar in: TRUE
+3 in [5..1]: FALSE
+3 in [lo..hi]: FALSE
+150000 in [0..200000]: TRUE
+200001 in [0..200000]: FALSE

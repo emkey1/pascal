@@ -1,0 +1,13 @@
+program BuiltinsPosSucc;
+{ Pos('', s) returned 1 (Free Pascal returns 0); Succ of the largest Int64
+  wrapped to the smallest. }
+var
+  b: int64;
+begin
+  writeln(pos('', 'abc'));
+  writeln(pos('b', 'abc'));
+  b := 9223372036854775806;
+  writeln(succ(b));
+  b := succ(b);
+  writeln(succ(b));
+end.

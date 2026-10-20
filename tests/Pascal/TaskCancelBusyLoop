@@ -1,0 +1,33 @@
+program TaskCancelBusyLoop;
+{ TaskCancel must stop a task that is busy in a loop: it used to set a flag
+  the running job never read, so the task spun on and a following wait for
+  it (or program exit) hung. }
+var
+  t: task;
+  spins, s1, s2: integer;
+
+function Spin(n: integer): integer;
+begin
+  while true do
+    spins := spins + 1;
+  Spin := n;
+end;
+
+begin
+  spins := 0;
+  t := TaskSpawn('Spin', 1);
+  while spins = 0 do
+    Delay(5);
+  if TaskCancel(t) then
+    writeln('cancel accepted');
+  while not TaskDone(t) do
+    Delay(5);
+  writeln('task stopped');
+  s1 := spins;
+  Delay(100);
+  s2 := spins;
+  if s1 = s2 then
+    writeln('no longer running')
+  else
+    writeln('STILL RUNNING');
+end.

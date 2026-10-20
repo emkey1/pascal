@@ -1,0 +1,4 @@
+r1 = 1
+stale cancel accepted: FALSE
+stale task done: TRUE
+r2 = 70

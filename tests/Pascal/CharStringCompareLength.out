@@ -1,0 +1,5 @@
+chr(0) = '': FALSE
+chr(0) > '': TRUE
+'a' = 'a': TRUE
+'a' < 'ab': TRUE
+'a' = 'ab': FALSE

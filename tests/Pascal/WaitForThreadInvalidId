@@ -1,0 +1,10 @@
+program WaitForThreadInvalidId;
+{ WaitForThread on an id that names no thread is an error; it used to
+  report success. }
+var
+  s: integer;
+begin
+  writeln('waiting');
+  s := WaitForThread(378);
+  writeln('UNREACHABLE ', s);
+end.

@@ -1,0 +1,41 @@
+program SetCompareAndMembership;
+type
+  TColor = (red, green, blue);
+  TSmall = set of 0..31;
+var
+  a, b: TSmall;
+  cs: set of TColor;
+  i64: int64; si: shortint; sm: smallint; ca: cardinal; li: longint; wc: widechar;
+  lo, hi: integer;
+begin
+  { comparisons: membership, not insertion order }
+  a := [1, 2, 3]; b := [3, 2, 1];
+  writeln('a = b: ', a = b);
+  writeln('a <> b: ', a <> b);
+  writeln('[1] <= a: ', [1] <= a);
+  writeln('a <= [1]: ', a <= [1]);
+  writeln('a >= [2, 3]: ', a >= [2, 3]);
+  writeln('[] <= a: ', [] <= a);
+  b := [];
+  writeln('b = []: ', b = []);
+  writeln('a = []: ', a = []);
+  cs := [blue, red];
+  writeln('cs = [red, blue]: ', cs = [red, blue]);
+  writeln('cs <> [red]: ', cs <> [red]);
+  { membership for every ordinal type }
+  i64 := 3; si := 3; sm := 3; ca := 3; li := 3; wc := 'c';
+  writeln('int64 in: ', i64 in [1..5]);
+  writeln('shortint in: ', si in [1..5]);
+  writeln('smallint in: ', sm in [1..5]);
+  writeln('cardinal in: ', ca in [1..5]);
+  writeln('longint in: ', li in [1..5]);
+  writeln('widechar in: ', wc in ['a'..'z']);
+  { a reversed range is empty }
+  writeln('3 in [5..1]: ', 3 in [5..1]);
+  lo := 5; hi := 1;
+  writeln('3 in [lo..hi]: ', 3 in [lo..hi]);
+  { a large range is built in linear time }
+  lo := 0; hi := 200000;
+  writeln('150000 in [0..200000]: ', 150000 in [lo..hi]);
+  writeln('200001 in [0..200000]: ', 200001 in [lo..hi]);
+end.

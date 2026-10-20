@@ -1,0 +1,33 @@
+program MutexReleasedWhenTaskStops;
+{ A task stopped while holding a mutex no longer leaves it locked forever:
+  the job's end releases the mutexes it holds, so main's lock() returns. }
+var
+  m: integer;
+  t: task;
+  held: integer;
+
+function Hold(n: integer): integer;
+begin
+  lock(m);
+  held := 1;
+  while true do
+    Delay(5);
+  unlock(m);
+  Hold := n;
+end;
+
+begin
+  held := 0;
+  m := mutex();
+  t := TaskSpawn('Hold', 1);
+  while held = 0 do
+    Delay(5);
+  TaskCancel(t);
+  while not TaskDone(t) do
+    Delay(5);
+  lock(m);
+  writeln('main got m');
+  unlock(m);
+  destroy(m);
+  writeln('done');
+end.

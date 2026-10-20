@@ -1,0 +1,80 @@
+program BuiltinVarArgCopyOnWrite;
+{ Builtins that write through a VAR argument in place (BlockRead into a
+  static array, Read into a record or a string, Inc/Dec of an enum) must not
+  change other copies that share the same payload. }
+type
+  TArr = array[0..3] of byte;
+  TRec = record
+    x, y: integer;
+  end;
+  TNamed = record
+    name: string;
+    n: integer;
+  end;
+  TColor = (Red, Green, Blue);
+var
+  f: file;
+  t: text;
+  b: TArr;
+  r: TRec;
+  nr: TNamed;
+  c: TColor;
+
+procedure ViaBlockRead(var x: TArr; y: TArr);
+begin
+  BlockRead(f, x, 4);
+  writeln('y=', y[0], ',', y[1], ' x=', x[0], ',', x[1]);
+end;
+
+procedure ViaRead(var x: TRec; y: TRec);
+begin
+  read(t, x);
+  writeln('y=', y.x, ',', y.y, ' x=', x.x, ',', x.y);
+end;
+
+procedure ViaInc(var x: TColor; y: TColor);
+begin
+  Inc(x);
+  writeln('y=', ord(y), ' x=', ord(x));
+end;
+
+procedure ViaDec(var x: TColor; y: TColor);
+begin
+  Dec(x);
+  writeln('y=', ord(y), ' x=', ord(x));
+end;
+
+begin
+  assign(t, 'bvacow_data.txt');
+  rewrite(t);
+  writeln(t, 'WXYZ');
+  writeln(t, '7 8');
+  writeln(t, 'other 5');
+  close(t);
+
+  b[0] := 1; b[1] := 2; b[2] := 3; b[3] := 4;
+  assign(f, 'bvacow_data.txt');
+  reset(f, 1);
+  ViaBlockRead(b, b);
+  close(f);
+  writeln('b=', b[0], ',', b[1]);
+
+  reset(t);
+  readln(t);
+  r.x := 1; r.y := 2;
+  ViaRead(r, r);
+  readln(t);
+  nr.name := 'first';
+  nr.n := 1;
+  read(t, nr);
+  writeln('nr=', nr.name, ',', nr.n);
+  nr.name := 'first';
+  writeln('literal=', nr.name);
+  close(t);
+  erase(t);
+
+  c := Red;
+  ViaInc(c, c);
+  c := Blue;
+  ViaDec(c, c);
+end.

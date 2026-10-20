@@ -1,0 +1,6 @@
+iter 1: s=hello
+iter 2: s=hello
+s=abc t=abcdef
+s=abc t=[abcdef  ]
+x=w y=world
+s=w

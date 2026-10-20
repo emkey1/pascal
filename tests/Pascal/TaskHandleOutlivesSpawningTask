@@ -1,0 +1,33 @@
+program TaskHandleOutlivesSpawningTask;
+{ A task spawned inside another task and handed back to main: it lived in
+  the outer worker's own pool, which was reset when that worker took its
+  next job (the result came back nil) and freed when the worker exited
+  (use after free). }
+var
+  o, ih, other: task;
+  r: integer;
+
+function Inner(n: integer): integer;
+begin
+  Delay(50);
+  Inner := n * 3;
+end;
+
+function Outer(n: integer): task;
+begin
+  Outer := TaskSpawn('Inner', n);
+end;
+
+function Nop(n: integer): integer;
+begin
+  Nop := n;
+end;
+
+begin
+  o := TaskSpawn('Outer', 5);
+  ih := TaskAwait(o);
+  other := TaskSpawn('Nop', 1);
+  r := TaskAwait(other);
+  r := TaskAwait(ih);
+  writeln('inner result = ', r);
+end.

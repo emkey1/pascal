@@ -1,0 +1,11 @@
+12x: i=-1 io=106
+99999999999: i=-1 io=106
+int64: 9000000000 io=0
+byte 200: 200 io=0
+byte 300: 1 io=106
+word -5: 1 io=106
+77: 77 io=0
+val big: i=7 code=12
+val ok: i=123 code=0
+val byte 256: 9 code=4
+val extended: 2.50 code=0

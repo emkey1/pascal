@@ -1,0 +1,29 @@
+program TaskStaleCancel;
+{ A task handle names one job, not its pool slot: after t1 is awaited its
+  slot is reused by t2, and a TaskCancel through the old t1 handle used to
+  cancel t2 and throw its result away. }
+var
+  t1, t2: task;
+  r1, r2: integer;
+
+function Quick(n: integer): integer;
+begin
+  Quick := n;
+end;
+
+function Slow(n: integer): integer;
+begin
+  Delay(100);
+  Slow := n * 10;
+end;
+
+begin
+  t1 := TaskSpawn('Quick', 1);
+  r1 := TaskAwait(t1);
+  writeln('r1 = ', r1);
+  t2 := TaskSpawn('Slow', 7);
+  writeln('stale cancel accepted: ', TaskCancel(t1));
+  writeln('stale task done: ', TaskDone(t1));
+  r2 := TaskAwait(t2);
+  writeln('r2 = ', r2);
+end.

@@ -1,0 +1,12 @@
+program LifetimeDisposeTwice;
+type
+  PInt = ^integer;
+  TBox = record p: PInt; end;
+var b: TBox; q: PInt;
+begin
+  new(q);
+  b.p := q;
+  dispose(q);
+  dispose(b.p);
+  writeln('unreachable');
+end.

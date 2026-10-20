@@ -1,0 +1,45 @@
+program LifetimeDynArrayFieldAlias;
+{ A VAR parameter aliasing a field (or a nested static-array element, or a
+  string character) of a dynamic array's element keeps the array's storage
+  alive when the array itself is resized away. }
+type
+  TInner = record a: array[1..3] of integer; name: string; end;
+  TRec = record x, y: integer; inner: TInner; end;
+var arr: array of TRec; i: integer;
+
+procedure P(var v: integer);
+begin
+  SetLength(arr, 0);
+  v := 5;
+end;
+
+procedure Q(var e: TRec);
+begin
+  SetLength(arr, 0);
+  e.x := 6;
+end;
+
+procedure N(var c: char);
+begin
+  SetLength(arr, 0);
+  c := 'Z';
+end;
+
+begin
+  SetLength(arr, 3);
+  i := 1;
+  arr[i].x := 1;
+  P(arr[i].x);
+  writeln('field ok ', length(arr));
+  SetLength(arr, 3);
+  Q(arr[i]);
+  writeln('element ok ', length(arr));
+  SetLength(arr, 2);
+  arr[i].inner.a[2] := 3;
+  P(arr[i].inner.a[2]);
+  writeln('nested ok ', length(arr));
+  SetLength(arr, 2);
+  arr[i].inner.name := 'abc';
+  N(arr[i].inner.name[2]);
+  writeln('char ok ', length(arr));
+end.

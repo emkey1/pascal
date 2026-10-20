@@ -1,0 +1,11 @@
+program BuiltinsTextColorNegative;
+{ TextColor/TextBackground kept a negative code's sign (C's %), and the
+  colour table was indexed at -4. }
+uses crt;
+begin
+  TextColor(-100);
+  TextBackground(-5);
+  writeln('x');
+  NormVideo;
+  writeln('done');
+end.

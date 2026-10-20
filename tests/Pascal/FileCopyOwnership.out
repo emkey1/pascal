@@ -1,0 +1,9 @@
+read: one
+read: two
+main read: three
+g: via record copy 2
+g: via record copy 2
+g: direct 1
+arr: via array copy
+arr: direct
+done

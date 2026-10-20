@@ -1,0 +1,17 @@
+program CreateThreadIntegerArgumentZero;
+{ CreateThread(@Worker, 0) passes 0 to Worker. Its bytecode is the same as
+  a spawn with no arguments, and the thread used to start with its
+  parameter missing. }
+var
+  t: integer;
+
+procedure Worker(p: integer);
+begin
+  writeln('worker got ', p);
+end;
+
+begin
+  t := CreateThread(@Worker, 0);
+  WaitForThread(t);
+  writeln('done');
+end.

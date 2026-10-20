@@ -1,0 +1,6 @@
+program PrintfFieldTooLarge;
+begin
+  writeln('before');
+  printf('C[%99999999999999999999d]D', 42);
+  writeln('not reached');
+end.

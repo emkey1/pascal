@@ -1,0 +1,30 @@
+program SetLengthCopyOnWrite;
+{ SetLength on a string replaces the buffer of the variable's own string;
+  copies of it, and the literal it was assigned from, keep their text. }
+var
+  s, t: string;
+  i: integer;
+
+procedure Shorten(var x: string; y: string);
+begin
+  SetLength(x, 1);
+  writeln('x=', x, ' y=', y);
+end;
+
+begin
+  for i := 1 to 2 do
+  begin
+    s := 'hello';
+    writeln('iter ', i, ': s=', s);
+    SetLength(s, 2);
+  end;
+  s := 'abcdef';
+  t := s;
+  SetLength(s, 3);
+  writeln('s=', s, ' t=', t);
+  SetLength(t, 8);
+  writeln('s=', s, ' t=[', t, ']');
+  s := 'world';
+  Shorten(s, s);
+  writeln('s=', s);
+end.

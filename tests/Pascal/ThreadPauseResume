@@ -1,0 +1,38 @@
+program ThreadPauseResume;
+{ ThreadPause holds a running thread until ThreadResume: the paused flag
+  used to be read only before a job started. The worker here is blocked in
+  ChannelReceive when paused, so it reaches the pause check on its next
+  poll whichever way the interpreter polls. }
+var
+  ch: channel;
+  t, got, i: integer;
+
+procedure Consumer;
+var
+  v: integer;
+begin
+  repeat
+    v := ChannelReceive(ch);
+    if v > 0 then
+      got := got + 1;
+  until v < 0;
+end;
+
+begin
+  got := 0;
+  ch := ChannelCreate(8);
+  t := spawn Consumer;
+  Delay(50);
+  ThreadPause(t);
+  Delay(250);
+  for i := 1 to 3 do
+    ChannelSend(ch, i);
+  Delay(250);
+  writeln('while paused: ', got);
+  ThreadResume(t);
+  Delay(250);
+  writeln('after resume: ', got);
+  ChannelSend(ch, -1);
+  join t;
+  writeln('done');
+end.

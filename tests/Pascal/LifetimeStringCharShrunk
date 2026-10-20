@@ -1,0 +1,18 @@
+program LifetimeStringCharShrunk;
+{ A string shortened in place while a VAR char parameter aliases one of its
+  characters: a write to a character that still exists works, one past the
+  new end is a runtime error rather than an out-of-bounds write. }
+var s: string;
+procedure P(var c: char);
+begin
+  SetLength(s, 2);
+  c := 'X';
+end;
+begin
+  s := 'hello';
+  P(s[1]);
+  writeln(s);
+  s := 'hello';
+  P(s[5]);
+  writeln('unreachable ', s);
+end.

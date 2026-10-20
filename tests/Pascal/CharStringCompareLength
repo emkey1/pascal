@@ -1,0 +1,12 @@
+program CharStringCompareLength;
+var c: char; s: string;
+begin
+  c := chr(0); s := '';
+  writeln('chr(0) = '''': ', c = s);
+  writeln('chr(0) > '''': ', c > s);
+  c := 'a'; s := 'a';
+  writeln('''a'' = ''a'': ', c = s);
+  s := 'ab';
+  writeln('''a'' < ''ab'': ', c < s);
+  writeln('''a'' = ''ab'': ', c = s);
+end.

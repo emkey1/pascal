@@ -1,0 +1,3 @@
+VM Error: Array access through a nil pointer.
+[Error Location] Offset: 41, Line: 8
+

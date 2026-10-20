@@ -1,0 +1,3 @@
+VM Error: Dereference of a dangling pointer (its target was disposed).
+[Error Location] Offset: 76, Line: 12
+

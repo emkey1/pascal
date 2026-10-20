@@ -1,0 +1,12 @@
+param=hello
+g=zzzzz
+callee x=zzz
+caller g=hello
+g=abcde d=hello
+a=xyz b=abc
+a=longe t=xyz
+self=longe
+x=abc
+F=zzz
+x2=def
+v=qqq
