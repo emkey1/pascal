@@ -1,0 +1,7 @@
+show v=7
+show v=9
+ints v=9
+g=9
+show x=5.50 f=TRUE
+show x=7.00 f=FALSE
+r=7.00 b=FALSE

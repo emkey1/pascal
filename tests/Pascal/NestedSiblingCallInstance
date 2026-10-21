@@ -1,0 +1,36 @@
+program NestedSiblingCallInstance;
+{ A closure handed to a deeper instance of its own parent calls a sibling
+  nested routine. The VM bound the sibling to the most recent frame of the
+  parent on the stack, the deeper instance, so the closure updated that
+  instance's variable instead of its own. }
+type TProc = procedure;
+
+procedure Nop;
+begin
+end;
+
+procedure Outer(depth: integer; p: TProc);
+var n: integer;
+  procedure Helper;
+  begin
+    n := n + 1;
+  end;
+  procedure Show;
+  begin
+    Helper;
+    writeln('show depth=', depth, ' n=', n);
+  end;
+begin
+  n := depth * 100;
+  if depth < 3 then
+    Outer(depth + 1, @Show)
+  else
+    p();
+  if depth = 2 then
+    p();
+  writeln('outer depth=', depth, ' n=', n);
+end;
+
+begin
+  Outer(1, @Nop);
+end.

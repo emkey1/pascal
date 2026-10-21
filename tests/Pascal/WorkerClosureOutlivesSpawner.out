@@ -1,0 +1,5 @@
+bump n=11 s=w!
+outer n=11 s=w!
+bump n=12 s=w!!
+noise 123456
+bump n=13 s=w!!!

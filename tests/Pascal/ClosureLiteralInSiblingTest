@@ -1,0 +1,48 @@
+program ClosureLiteralInSiblingTest;
+{ `@Show` taken inside a sibling of Show. The literal pushed the addresses of
+  the CURRENT routine's slots under the parent's slot numbers, so the closure
+  read the sibling's locals (here b = 8) instead of the parent's n. It now
+  captures through the sibling's upvalues. }
+type TProc = procedure;
+var kept: TProc;
+
+procedure Keep(p: TProc);
+begin
+  kept := p;
+end;
+
+procedure Outer;
+var a, n: integer;
+  procedure Show;
+  begin
+    n := n + 1;
+    writeln('show n=', n);
+  end;
+  procedure Other;
+  var x, y: integer;
+    procedure Deeper;
+    var q: integer;
+    begin
+      q := 99;
+      Keep(@Show);
+      kept();
+    end;
+  begin
+    x := 7;
+    y := 8;
+    Keep(@Show);
+    kept();
+    Deeper;
+    writeln('other x=', x, ' y=', y);
+  end;
+begin
+  a := 5;
+  n := 42;
+  Other;
+  writeln('outer a=', a, ' n=', n);
+end;
+
+begin
+  Outer;
+  kept();
+end.

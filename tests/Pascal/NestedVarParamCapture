@@ -1,0 +1,61 @@
+program NestedVarParamCapture;
+{ A parent's VAR parameters used by nested routines and their closures.
+  A closure bound the parameter's referent while the routine's code expects
+  the slot holding the reference ("SET_INDIRECT requires an address"); a
+  nested routine read the parameter as the reference itself (writeln printed
+  POINTER(...)); and a Real or Boolean store overwrote the reference. }
+type TProc = procedure;
+var g: integer;
+    r: real;
+    b: boolean;
+
+procedure Run(p: TProc);
+begin
+  p();
+end;
+
+procedure Ints(var v: integer);
+  procedure Bump;
+  begin
+    v := v + 1;
+  end;
+  procedure Show;
+  begin
+    Bump;
+    writeln('show v=', v);
+  end;
+begin
+  Bump;
+  Show;
+  Run(@Bump);
+  Run(@Show);
+  writeln('ints v=', v);
+end;
+
+procedure Others(var x: real; var f: boolean);
+  procedure SetIt;
+  begin
+    x := x + 1.5;
+    f := not f;
+  end;
+  procedure Show;
+  begin
+    SetIt;
+    writeln('show x=', x:0:2, ' f=', f);
+  end;
+begin
+  SetIt;
+  Run(@SetIt);
+  Show;
+  Run(@Show);
+end;
+
+begin
+  g := 5;
+  Ints(g);
+  writeln('g=', g);
+  r := 1.0;
+  b := false;
+  Others(r, b);
+  writeln('r=', r:0:2, ' b=', b);
+end.

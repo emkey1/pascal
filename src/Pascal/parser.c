@@ -1829,8 +1829,9 @@ void addProcedure(Parser *parser, AST *proc_decl_ast_original, const char* unit_
     }
 
 
-    // THIS IS THE CRITICAL CHANGE - ALLOCATE A Symbol, NOT A Procedure
-    Symbol *sym = (Symbol *)malloc(sizeof(Symbol)); // <<< THIS SHOULD BE sizeof(Symbol)
+    // Zeroed: the fields not set below (is_body_compiled among them, which
+    // the compiler reads at calls to a forward-declared routine) start clear.
+    Symbol *sym = (Symbol *)calloc(1, sizeof(Symbol));
     if (!sym) {
         fprintf(stderr, "Memory allocation error in addProcedure for Symbol struct\n");
         free(name_for_table);

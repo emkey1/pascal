@@ -1,0 +1,74 @@
+program NestedSiblingCallFromClosure;
+{ A closure of a nested routine that outlives its parent and calls a sibling
+  nested routine directly. The call looked for the parent's frame on the
+  stack: with the parent gone it stopped with "Enclosing frame not found",
+  and with the parent running again it bound the sibling to that unrelated
+  instance. The caller now captures what the sibling uses (here `s`, which
+  Show never mentions) and binds the sibling through its own upvalues. }
+type TProc = procedure;
+var kept, deep: TProc;
+
+procedure Keep(p: TProc);
+begin
+  kept := p;
+end;
+
+procedure KeepDeep(p: TProc);
+begin
+  deep := p;
+end;
+
+procedure Noise;
+var a, b, c, d, e: integer;
+    t: string;
+begin
+  a := 1; b := 2; c := 3; d := 4; e := 5; t := 'noise';
+  kept();
+  writeln('noise ', a, ' ', b, ' ', c, ' ', d, ' ', e, ' ', t);
+end;
+
+procedure Outer(tag: integer);
+var n, total: integer;
+    s: string;
+  procedure Helper;
+  begin
+    n := n + 1;
+    s := s + '+';
+    writeln('helper tag=', tag, ' n=', n, ' s=', s);
+  end;
+  function Twice(x: integer): integer;
+  begin
+    total := total + x;
+    Twice := 2 * x + n;
+  end;
+  procedure Show;
+  var local: integer;
+    procedure Inner;
+    begin
+      local := local + 1;
+      writeln('inner twice=', Twice(local), ' total=', total, ' local=', local);
+    end;
+  begin
+    Helper;
+    local := 100;
+    KeepDeep(@Inner);
+  end;
+begin
+  n := tag * 10;
+  total := 0;
+  s := 'x';
+  if tag = 1 then
+    Keep(@Show)
+  else
+    kept();
+  writeln('outer tag=', tag, ' n=', n, ' s=', s);
+end;
+
+begin
+  Outer(1);
+  kept();
+  Outer(2);
+  Noise;
+  deep();
+  deep();
+end.

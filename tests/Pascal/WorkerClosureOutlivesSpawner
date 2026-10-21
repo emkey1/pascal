@@ -1,0 +1,50 @@
+program WorkerClosureOutlivesSpawner;
+{ A closure built on a worker thread over a variable of the spawning
+  routine's frame (reached through the worker routine's own capture), kept
+  past that routine's return. The closure is registered with the spawning
+  thread's VM, which moves the variable into a shared cell when the frame
+  returns; before, it kept pointing at the dead stack slot. }
+type TProc = procedure;
+var kept: TProc;
+
+procedure Keep(p: TProc);
+begin
+  kept := p;
+end;
+
+procedure Noise;
+var a, b, c, d, e, f: integer;
+begin
+  a := 1; b := 2; c := 3; d := 4; e := 5; f := 6;
+  kept();
+  writeln('noise ', a, b, c, d, e, f);
+end;
+
+procedure Outer;
+var n: integer;
+    s: string;
+    tid: integer;
+  procedure Bump;
+  begin
+    n := n + 1;
+    s := s + '!';
+    writeln('bump n=', n, ' s=', s);
+  end;
+  procedure Worker;
+  begin
+    Keep(@Bump);
+  end;
+begin
+  n := 10;
+  s := 'w';
+  tid := spawn Worker;
+  join tid;
+  kept();
+  writeln('outer n=', n, ' s=', s);
+end;
+
+begin
+  Outer;
+  Noise;
+  kept();
+end.

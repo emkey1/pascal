@@ -1,0 +1,51 @@
+program NestedSiblingForwardCall;
+{ Nested routines that call each other through a forward declaration, reached
+  from closures that outlive their parent. A caller compiled before its
+  callee's body cannot see what the callee captures yet; the compiler records
+  the call and widens the caller's captures once the callee's body is done. }
+type TProc = procedure;
+var kept: TProc;
+
+procedure Keep(p: TProc);
+begin
+  kept := p;
+end;
+
+procedure Outer;
+var n: integer;
+    s: string;
+  procedure Ping(k: integer); forward;
+  procedure Pong(k: integer);
+  begin
+    s := s + 'o';
+    if k > 0 then Ping(k - 1);
+  end;
+  procedure Ping(k: integer);
+  begin
+    n := n + 1;
+    s := s + 'i';
+    if k > 0 then Pong(k - 1);
+  end;
+  procedure ShowPing;
+  begin
+    Ping(4);
+    writeln('ping n=', n, ' s=', s);
+  end;
+  procedure ShowPong;
+  begin
+    Pong(3);
+    writeln('pong n=', n, ' s=', s);
+  end;
+begin
+  n := 0;
+  s := '';
+  Keep(@ShowPong);
+  kept();
+  Keep(@ShowPing);
+end;
+
+begin
+  Outer;
+  kept();
+  kept();
+end.

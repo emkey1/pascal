@@ -1,0 +1,8 @@
+outer tag=1 n=10 s=x
+helper tag=1 n=11 s=x+
+helper tag=1 n=12 s=x++
+outer tag=2 n=20 s=x
+helper tag=1 n=13 s=x+++
+noise 1 2 3 4 5 noise
+inner twice=215 total=101 local=101
+inner twice=217 total=203 local=102

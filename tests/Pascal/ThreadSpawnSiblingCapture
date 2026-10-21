@@ -1,0 +1,38 @@
+program ThreadSpawnSiblingCapture;
+{ A nested routine spawned from one of its siblings. With the target already
+  compiled, the closure literal pushed the spawning sibling's slots under the
+  parent's slot numbers; with a forward target, the VM bound the parent's
+  slot numbers to the spawning sibling's frame. Either way the thread
+  updated Launch's locals (a) instead of the parent's count. }
+procedure Outer;
+var count: integer;
+    tid: integer;
+  procedure Late; forward;
+  procedure Worker;
+  begin
+    count := count + 1;
+  end;
+  procedure Launch;
+  var a, b: integer;
+  begin
+    a := 7;
+    b := 8;
+    tid := spawn Worker;
+    join tid;
+    tid := spawn Late;
+    join tid;
+    writeln('launch a=', a, ' b=', b);
+  end;
+  procedure Late;
+  begin
+    count := count + 100;
+  end;
+begin
+  count := 41;
+  Launch;
+  writeln('count=', count);
+end;
+
+begin
+  Outer;
+end.

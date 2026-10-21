@@ -1,0 +1,5 @@
+show n=43
+show n=44
+other x=7 y=8
+outer a=5 n=44
+show n=45
