@@ -182,7 +182,7 @@ const char *PASCAL_USAGE =
     "     --dump-bytecode             Dump compiled bytecode before execution.\n"
     "     --dump-bytecode-only        Dump compiled bytecode and exit (no execution).\n"
     "     --dump-ext-builtins         List extended builtin inventory and exit.\n"
-    "     --no-cache                  Compile fresh (ignore cached bytecode).\n"
+    "     --no-cache                  Compile fresh; neither read nor write cached bytecode.\n"
     "     --verbose                 Print compilation/cache status messages.\n"
     "     --vm-trace-head=N           Trace first N VM instructions (also enabled by '{trace on}' in source).\n"
     "   or: pascal (with no arguments to display version and usage)";
@@ -334,7 +334,7 @@ int runProgram(const char *source, const char *programName, const char *displayN
                 compilation_ok_for_vm = compileASTToBytecode(GlobalAST, &chunk);
                 if (compilation_ok_for_vm) {
                     finalizeBytecode(&chunk);
-                    saveBytecodeToCache(programName, kPascalCompilerId, &chunk);
+                    if (!no_cache_flag) saveBytecodeToCache(programName, kPascalCompilerId, &chunk);
                     // VM 2.0 Phase 2b (plan §5.7): link AFTER saving to cache,
                     // never before -- the cached .bc must always hold the
                     // pre-link (name-indexed) representation, so a later
