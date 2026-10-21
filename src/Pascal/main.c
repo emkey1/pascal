@@ -183,6 +183,7 @@ const char *PASCAL_USAGE =
     "     --dump-bytecode-only        Dump compiled bytecode and exit (no execution).\n"
     "     --dump-ext-builtins         List extended builtin inventory and exit.\n"
     "     --no-cache                  Compile fresh; neither read nor write cached bytecode.\n"
+    "     --prune-cache               Remove cached bytecode whose source file is gone, then exit.\n"
     "     --verbose                 Print compilation/cache status messages.\n"
     "     --vm-trace-head=N           Trace first N VM instructions (also enabled by '{trace on}' in source).\n"
     "   or: pascal (with no arguments to display version and usage)";
@@ -541,6 +542,7 @@ int PSCAL_PASCAL_ENTRY_SYMBOL(int argc, char *argv[]) {
     int dump_ext_builtins_flag = 0;
     int verbose_flag = 0;
     int no_cache_flag = 0;
+    int prune_cache_flag = 0;
     const char *sourceFile = NULL;
     const char *programName = argv[0]; // Default program name to executable name
     int pscal_params_start_index = 0; // Will be set after source file is identified
@@ -571,6 +573,8 @@ int PSCAL_PASCAL_ENTRY_SYMBOL(int argc, char *argv[]) {
             dump_bytecode_only_flag = 1;
         } else if (strcmp(argv[i], "--dump-ext-builtins") == 0) {
             dump_ext_builtins_flag = 1;
+        } else if (strcmp(argv[i], "--prune-cache") == 0) {
+            prune_cache_flag = 1;
         } else if (strcmp(argv[i], "--no-cache") == 0) {
             no_cache_flag = 1;
         } else if (strcmp(argv[i], "--verbose") == 0) {
@@ -606,6 +610,10 @@ int PSCAL_PASCAL_ENTRY_SYMBOL(int argc, char *argv[]) {
         registerExtendedBuiltins();
         extBuiltinDumpInventory(stdout);
         PAS_RETURN(EXIT_SUCCESS);
+    }
+
+    if (prune_cache_flag) {
+        PAS_RETURN(pruneBytecodeCache(stdout, verbose_flag));
     }
 
     // If --dump-ast-json was specified but no source file yet, check next arg
