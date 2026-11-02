@@ -476,10 +476,11 @@ int runProgram(const char *source, const char *programName, const char *displayN
 }
 
 // Consistent main function structure for argument parsing
-// Top-level stderr capture state for clean-success suppression
-static FILE* s_stderr_tmp = NULL;
-static int s_saved_stderr_fd = -1;
-static int s_capture_active = 0;
+// Top-level stderr capture state for clean-success suppression. On iOS two runs can be
+// going at once in one process (`pascal a | pascal b`), and one closed the other's stream.
+static PSCAL_THREAD_LOCAL FILE* s_stderr_tmp = NULL;
+static PSCAL_THREAD_LOCAL int s_saved_stderr_fd = -1;
+static PSCAL_THREAD_LOCAL int s_capture_active = 0;
 
 static ssize_t pascalWriteStderr(const void *buf, size_t len) {
 #if defined(PSCAL_TARGET_IOS) && !defined(VPROC_SHIM_DISABLED)
