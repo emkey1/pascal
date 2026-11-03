@@ -423,7 +423,6 @@ int runProgram(const char *source, const char *programName, const char *displayN
 #endif
                         freeVM(vm);
                         free(vm);
-                        globalSymbols = NULL;
                     }
                 }
             } else {
@@ -447,9 +446,7 @@ int runProgram(const char *source, const char *programName, const char *displayN
     }
 
     freeBytecodeChunk(&chunk);
-    freeProcedureTable();
-    freeTypeTableASTNodes();
-    freeTypeTable();
+    /* Before the type table: a global's type_def can point into it. */
     if (globalSymbols) {
         freeHashTable(globalSymbols);
         globalSymbols = NULL;
@@ -458,6 +455,9 @@ int runProgram(const char *source, const char *programName, const char *displayN
         freeHashTable(constGlobalSymbols);
         constGlobalSymbols = NULL;
     }
+    freeProcedureTable();
+    freeTypeTableASTNodes();
+    freeTypeTable();
 #ifdef DEBUG
     if (inserted_global_names) {
         freeList(inserted_global_names);
