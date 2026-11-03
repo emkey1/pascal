@@ -4480,7 +4480,7 @@ AST *joinStatement(Parser *parser) {
 }
 
 static AST *parseAnonymousSpawnProcedure(Parser *parser) {
-    static unsigned anonymous_spawn_counter = 1;
+    static PSCAL_THREAD_LOCAL unsigned anonymous_spawn_counter = 1;
 
     if (!parser || !parser->current_token || parser->current_token->type != TOKEN_PROCEDURE) {
         errorParser(parser, "Expected PROCEDURE for anonymous spawn routine");
@@ -4543,7 +4543,7 @@ static AST *parseAnonymousSpawnProcedure(Parser *parser) {
 }
 
 static AST *parseAnonymousRoutineLiteral(Parser *parser) {
-    static unsigned anonymous_routine_counter = 1;
+    static PSCAL_THREAD_LOCAL unsigned anonymous_routine_counter = 1;
 
     if (!parser || !parser->current_token ||
         (parser->current_token->type != TOKEN_FUNCTION &&

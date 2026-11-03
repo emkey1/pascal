@@ -63,7 +63,7 @@
 #include "ext_builtins/plugin_loader.h"
 // ast.h is already included via globals.h or directly, no need for duplicate
 
-static int s_vm_trace_head = 0;
+static PSCAL_THREAD_LOCAL int s_vm_trace_head = 0;
 
 #ifndef PSCAL_NO_CLI_ENTRYPOINTS
 static void pascalApplyBgRedirectionFromEnv(void) {
@@ -98,7 +98,7 @@ static void pascalApplyBgRedirectionFromEnv(void) {
 #endif
 
 #if defined(PSCAL_TARGET_IOS)
-static VM *s_sigint_vm = NULL;
+static PSCAL_THREAD_LOCAL VM *s_sigint_vm = NULL;
 
 static void pascalHandleSigint(int signo) {
     (void)signo;

@@ -11,9 +11,9 @@
 #include <string.h>
 #include <strings.h>
 
-static AST *gProgramRoot = NULL;
-static ClosureCaptureRegistry gClosureRegistry;
-static bool gRegistryInitialized = false;
+static PSCAL_THREAD_LOCAL AST *gProgramRoot = NULL;
+static PSCAL_THREAD_LOCAL ClosureCaptureRegistry gClosureRegistry;
+static PSCAL_THREAD_LOCAL bool gRegistryInitialized = false;
 typedef enum {
     THROW_MODE_RETURN,
     THROW_MODE_TRY_BREAK,
