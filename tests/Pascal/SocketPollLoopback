@@ -1,0 +1,41 @@
+program SocketPollLoopback;
+{ socketPoll on a real TCP pair over loopback. The port is the first free one
+  from 39100, since other runs can hold any of them. }
+var
+  listener, client, accepted, port, i: integer;
+  received: mstream;
+begin
+  port := 0;
+  i := 0;
+  while (port = 0) and (i < 200) do
+  begin
+    listener := socketcreate(0);
+    if socketbindaddr(listener, '127.0.0.1', 39100 + i) = 0 then
+      port := 39100 + i
+    else
+      socketclose(listener);
+    i := i + 1;
+  end;
+  writeln('listen ', socketlisten(listener, 4));
+  writeln('no client ', socketpoll(listener, 50, 1));
+  client := socketcreate(0);
+  writeln('connect ', socketconnect(client, '127.0.0.1', port));
+  writeln('client waiting ', socketpoll(listener, 2000, 1));
+  accepted := socketaccept(listener);
+  writeln('nothing sent ', socketpoll(accepted, 50, 1));
+  writeln('can write ', socketpoll(client, 2000, 2));
+  writeln('read or write ', socketpoll(client, 2000, 3));
+  writeln('send ', socketsend(client, 'hello'));
+  writeln('data waiting ', socketpoll(accepted, 2000, 1));
+  received := socketreceive(accepted, 16);
+  writeln('received ', mstreambuffer(received));
+  mstreamfree(received);
+  writeln('drained ', socketpoll(accepted, 50, 1));
+  socketclose(client);
+  writeln('close ', socketlasterror);
+  writeln('peer gone ', socketpoll(accepted, 2000, 1));
+  writeln('bad timeout ', socketpoll(accepted, -1, 1));
+  socketclose(accepted);
+  writeln('closed ', socketpoll(accepted, 50, 1));
+  socketclose(listener);
+end.

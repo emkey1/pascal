@@ -1,0 +1,15 @@
+listen 0
+no client 0
+connect 0
+client waiting 1
+nothing sent 0
+can write 2
+read or write 2
+send 5
+data waiting 1
+received hello
+drained 0
+close 0
+peer gone 1
+bad timeout -1
+closed -1
