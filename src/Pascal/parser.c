@@ -17,6 +17,7 @@
 #include <strings.h>
 #include <limits.h>
 #include <stdint.h>
+#include "common/path_virtualization.h"
 
 // Define the helper function *only* when DEBUG is enabled
 // No 'static inline' needed here as it's defined only once in this file.
