@@ -293,13 +293,13 @@ run_pascal_fixture() {
         fi
     fi
 
-    # The HTTP/API fixtures call the libcurl-backed networking builtins
-    # (HttpSession/HttpRequest, apiSend/apiReceive). A minimal pscal-core build
-    # omits libcurl, so those builtins fail at runtime. Skip them when the
+    # The HTTP/API and socket fixtures call the libcurl-backed networking builtins
+    # (HttpSession/HttpRequest, apiSend/apiReceive, socketCreate). A minimal pscal-core
+    # build omits libcurl, so those builtins fail at runtime. Skip them when the
     # capability is absent, the same way the SocketSendReceiveTest .net marker is
     # gated. Forcing RUN_NET_TESTS=1 opts them back in when curl is present.
     case "$test_name" in
-        ApiSendReceiveTest|HttpAsyncFileURL|HttpFetchDataURL|HttpHeadersFileURL|HttpRequestToFileFileURL)
+        ApiSendReceiveTest|HttpAsyncFileURL|HttpFetchDataURL|HttpHeadersFileURL|HttpRequestToFileFileURL|SocketPollLoopback)
             if [ "$PASCAL_HTTP_AVAILABLE" -ne 1 ] && [ "${RUN_NET_TESTS:-0}" != "1" ]; then
                 harness_report SKIP "pascal_${test_name}" "Pascal fixture $test_name" "libcurl-based networking unavailable"
                 return
