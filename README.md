@@ -31,7 +31,8 @@ with.
 cmake --install build --prefix /usr/local
 ```
 
-This puts the `pascal` binary in `<prefix>/bin`, the example programs in
+This puts the `pascal` binary in `<prefix>/bin`, its library units in
+`<prefix>/lib/pascal`, the example programs in
 `<prefix>/share/pascal/examples`, and the language docs in
 `<prefix>/share/doc/pascal`. The fetched dependency (pscal-core) declares no
 install rules, so only Pascal's own artifacts are installed.
@@ -47,7 +48,7 @@ ctest --test-dir build --output-on-failure
 
 The suite is self-contained: the `.pas` corpus (`tests/Pascal`), the compiler
 cases (`tests/compiler/pascal`), the shared harness and CLI fixtures
-(`tests/tools`), the runtime units (`tests/lib`), and the sample data
+(`tests/tools`), and the sample data
 (`tests/data`) are all vendored beside the runner.
 
 You can also run it directly against any binary by pointing `PASCAL_BIN` at it

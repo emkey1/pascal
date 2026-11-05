@@ -93,6 +93,8 @@ target_link_libraries(pascal PRIVATE pscal_core_static Threads::Threads m)
 # rules of its own, so only Pascal's targets are installed here.
 include(GNUInstallDirs)
 install(TARGETS pascal RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+# Pascal finds these as <dir above the binary>/lib/pascal, wherever --prefix points.
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/pascal/ DESTINATION lib/pascal)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/
         DESTINATION ${CMAKE_INSTALL_DATADIR}/pascal/examples)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/

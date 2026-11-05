@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # This runner ships inside the pascal repo at tests/. The .pas corpus
 # (tests/Pascal), the compiler regression suite (tests/compiler/pascal), the
-# shared harness + CLI fixtures (tests/tools) and the runtime units (tests/lib)
+# shared harness + CLI fixtures (tests/tools) and the runtime units (../lib)
 # are all vendored beside it, so the repo runs self-contained with no umbrella
 # tree. PASCAL_BIN defaults to the standalone build (../build/pascal); callers
 # can override it, e.g. the umbrella points it at build/bin/pascal over this same
@@ -613,11 +613,11 @@ TEST_HOME=$(mktemp -d)
 export HOME="$TEST_HOME"
 trap 'rm -rf "$TEST_HOME"' EXIT
 
-# Runtime units are vendored at tests/lib (mirrors the umbrella's lib/). The
+# Runtime units are at ../lib, a copy of the umbrella's lib/pascal. The
 # harness copies them into a writable scratch root because the binary expects a
-# crt.pl unit (sourced from crtvt.pl) and because an installed tests/lib could be
+# crt.pl unit (sourced from crtvt.pl) and because an installed lib could be
 # read-only. Default the scratch root to a temp dir; honour PASCAL_LIB_DIR.
-VENDOR_LIB="$TESTS_DIR/lib"
+VENDOR_LIB="$TESTS_DIR/../lib"
 CRT_UNIT="$VENDOR_LIB/pascal/crtvt.pl"
 if [ -n "${PASCAL_LIB_DIR:-}" ]; then
     PASCAL_LIB_ROOT="$PASCAL_LIB_DIR"
@@ -731,6 +731,48 @@ for src in "$SCRIPT_DIR"/Pascal/*; do
     run_pascal_fixture "$test_name"
 done
 shopt -u nullglob
+
+# The binary finds <dir above it>/lib/pascal, from any directory. Only for this
+# repo's own build: the umbrella's iOS flavour maps host paths.
+run_unit_beside_binary_test() {
+    local prefix work out rc=0
+    prefix=$(mktemp -d)
+    work=$(mktemp -d)
+    mkdir -p "$prefix/bin" "$prefix/lib/pascal"
+    cp "$PASCAL_BIN" "$prefix/bin/pascal"
+    cat > "$prefix/lib/pascal/besideunit.pl" <<'EOF'
+unit besideunit;
+interface
+    function BesideValue: integer;
+implementation
+    function BesideValue: integer;
+    begin
+        BesideValue := 42;
+    end;
+end.
+EOF
+    cat > "$work/main.pas" <<'EOF'
+program main;
+uses besideunit;
+begin
+    writeln(BesideValue);
+end.
+EOF
+    out=$(cd "$work" && env -u PASCAL_LIB_DIR -u PSCAL_LIB_DIR "$prefix/bin/pascal" --no-cache main.pas 2>&1) || rc=$?
+    rm -rf "$prefix" "$work"
+    if [ "$rc" -ne 0 ] || [ "$out" != "42" ]; then
+        printf 'exit %s, output: %s\n' "$rc" "$out"
+        return 1
+    fi
+}
+
+if [ ! "$PASCAL_BIN" -ef "$SCRIPT_DIR/../build/pascal" ]; then
+    harness_report SKIP "pascal_unit_beside_binary" "A unit in lib/pascal above the binary is found" "needs this repo's own build"
+elif details=$(run_unit_beside_binary_test); then
+    harness_report PASS "pascal_unit_beside_binary" "A unit in lib/pascal above the binary is found"
+else
+    harness_report FAIL "pascal_unit_beside_binary" "A unit in lib/pascal above the binary is found" "$details"
+fi
 
 if details=$(run_cache_staleness_test); then
     harness_report PASS "pascal_cache_staleness" "Cache invalidation honours matching timestamps"
