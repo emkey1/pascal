@@ -20,6 +20,11 @@ cmake --build build -j
 Pascal source files in the corpus and examples are stored without a `.pas`
 suffix; the compiler runs them either way.
 
+A plain configure gives `RelWithDebInfo` (`-O2 -g`). Pass
+`-DCMAKE_BUILD_TYPE=Debug` for a debugger or a sanitizer, or `Release` for `-O3`
+with no debug info. A build directory keeps the type it was first configured
+with.
+
 ## Install
 
 ```sh
