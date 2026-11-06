@@ -234,6 +234,7 @@ int runProgram(const char *source, const char *programName, const char *displayN
 
     AST *GlobalAST = NULL;
     bool overall_success_status = false;
+    bool interrupted = false;
     bool used_cache = false;
 
     // Note: stderr capture is handled at the top-level in main() only.
@@ -393,6 +394,10 @@ int runProgram(const char *source, const char *programName, const char *displayN
                             interpretBytecode(vm, &chunk, globalSymbols, constGlobalSymbols, procedure_table, 0);
                         if (result_vm == INTERPRET_OK) {
                             overall_success_status = true;
+                        } else if (vmRunWasInterrupted(vm)) {
+                            /* Ctrl-C or a kill: stopped, not failed. */
+                            overall_success_status = false;
+                            interrupted = true;
                         } else {
                             fprintf(stderr, "--- VM execution Failed (%s) ---\n",
                                     result_vm == INTERPRET_RUNTIME_ERROR ? "Runtime Error" : "Compile Error (VM stage)");
@@ -453,6 +458,9 @@ int runProgram(const char *source, const char *programName, const char *displayN
 #ifdef SDL
     sdlCleanupAtExit();
 #endif
+    if (interrupted) {
+        return 128 + SIGINT;
+    }
     return overall_success_status ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
