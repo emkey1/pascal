@@ -392,7 +392,7 @@ int runProgram(const char *source, const char *programName, const char *displayN
 #endif
                         InterpretResult result_vm =
                             interpretBytecode(vm, &chunk, globalSymbols, constGlobalSymbols, procedure_table, 0);
-                        if (result_vm == INTERPRET_OK) {
+                        if (result_vm == INTERPRET_OK && !vmRunWasInterrupted(vm)) {
                             overall_success_status = true;
                         } else if (vmRunWasInterrupted(vm)) {
                             /* Ctrl-C or a kill: stopped, not failed. */
