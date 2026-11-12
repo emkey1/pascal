@@ -1,0 +1,16 @@
+program OwnStrNames;
+{ strinsert and strdelete are CLike's and Rea's builtins only; a Pascal
+  program can name its own routines after them. }
+function strinsert(a, b: Integer): Integer;
+begin
+  strinsert := a + b;
+end;
+
+function strdelete(a, b: Integer): Integer;
+begin
+  strdelete := a - b;
+end;
+
+begin
+  writeln(strinsert(2, 3), ' ', strdelete(9, 4));
+end.
