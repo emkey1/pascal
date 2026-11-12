@@ -1,0 +1,7 @@
+copied: 2 3 4 0 0 0
+overlap up: 1 2 1 2 3 4
+overlap down: 3 4 5 6 5 6
+whole: 3 4 5 6 5 6
+scalar: 41
+grid: 101
+sizes: 4 TRUE 1

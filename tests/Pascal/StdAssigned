@@ -1,0 +1,27 @@
+program StdAssigned;
+type
+  PInt = ^Integer;
+  TProc = procedure;
+var
+  p: PInt;
+  cb: TProc;
+
+procedure Hello;
+begin
+  writeln('hello');
+end;
+
+begin
+  p := nil;
+  writeln('nil pointer: ', Assigned(p));
+  new(p);
+  p^ := 3;
+  writeln('new pointer: ', Assigned(p));
+  dispose(p);
+  cb := nil;
+  writeln('nil procedure: ', Assigned(cb));
+  cb := @Hello;
+  writeln('procedure: ', Assigned(cb));
+  if Assigned(cb) then
+    cb();
+end.

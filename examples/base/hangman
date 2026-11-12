@@ -29,7 +29,7 @@ function EnvPathCandidate(const envName, leaf: string): string;
 var
   envValue: string;
 begin
-  envValue := GetEnv(envName);
+  envValue := GetEnvironmentVariable(envName);
   if envValue = '' then
     EnvPathCandidate := ''
   else
@@ -41,7 +41,7 @@ var
   baseDir, candidate: string;
   i: integer;
 begin
-  candidate := GetEnv('PSCALI_WORDS_PATH');
+  candidate := GetEnvironmentVariable('PSCALI_WORDS_PATH');
   if (candidate <> '') and FileExists(candidate) then
   begin
     ResolveWordsPath := candidate;

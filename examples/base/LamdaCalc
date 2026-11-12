@@ -90,7 +90,7 @@ begin
         for i := 1 to Length(FreeVars) do
           for j := i + 1 to Length(FreeVars) do
             if FreeVars[i] = FreeVars[j] then 
-              FreeVars := Copy(FreeVars, 1, j - 1) + Copy(FreeVars, j + 1, Length(FreeVars) - j);
+              Delete(FreeVars, j, 1);
       end;
   end;
 end;

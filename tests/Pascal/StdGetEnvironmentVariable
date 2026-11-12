@@ -1,0 +1,6 @@
+program StdGetEnvironmentVariable;
+uses SysUtils;
+begin
+  writeln('PATH set: ', GetEnvironmentVariable('PATH') <> '');
+  writeln('unset: [', GetEnvironmentVariable('PSCAL_SURELY_UNSET_VARIABLE_42'), ']');
+end.

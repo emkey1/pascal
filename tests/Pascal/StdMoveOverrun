@@ -1,0 +1,8 @@
+program StdMoveOverrun;
+var
+  a, b: array[1..3] of Integer;
+begin
+  a[1] := 1; a[2] := 2; a[3] := 3;
+  Move(a[2], b[1], 3 * SizeOf(Integer));
+  writeln('not reached');
+end.

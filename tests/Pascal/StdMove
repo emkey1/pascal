@@ -1,0 +1,53 @@
+program StdMove;
+type
+  CellState = (Dead, Alive);
+  Row = array of CellState;
+  Grid = array of Row;
+var
+  a, b: array[1..6] of Integer;
+  g, h: Grid;
+  i: Integer;
+  x, y: Integer;
+
+procedure Show(const label_: string; const v: array of Integer);
+var
+  k: Integer;
+begin
+  write(label_, ':');
+  for k := Low(v) to High(v) do
+    write(' ', v[k]);
+  writeln;
+end;
+
+begin
+  for i := 1 to 6 do
+  begin
+    a[i] := i;
+    b[i] := 0;
+  end;
+  Move(a[2], b[1], 3 * SizeOf(Integer));
+  Show('copied', b);
+  Move(a[1], a[3], 4 * SizeOf(Integer));
+  Show('overlap up', a);
+  for i := 1 to 6 do a[i] := i;
+  Move(a[3], a[1], 4 * SizeOf(Integer));
+  Show('overlap down', a);
+  Move(a, b, SizeOf(a));
+  Show('whole', b);
+  x := 41;
+  y := 0;
+  Move(x, y, SizeOf(x));
+  writeln('scalar: ', y);
+
+  SetLength(g, 2);
+  SetLength(h, 2);
+  for i := 0 to 1 do
+  begin
+    SetLength(g[i], 3);
+    SetLength(h[i], 3);
+  end;
+  g[1][0] := Alive; g[1][2] := Alive;
+  Move(g[1][0], h[1][0], 3 * SizeOf(CellState));
+  writeln('grid: ', Ord(h[1][0]), Ord(h[1][1]), Ord(h[1][2]));
+  writeln('sizes: ', SizeOf(Integer), ' ', SizeOf(CellState) > 0, ' ', SizeOf(Char));
+end.

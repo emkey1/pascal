@@ -40,7 +40,7 @@ program InterfaceDrivenUI;
   begin
     selfRef := myself;
     cb := selfRef^.handler;
-    if cb <> nil then
+    if Assigned(cb) then
       cb();
   end;
 

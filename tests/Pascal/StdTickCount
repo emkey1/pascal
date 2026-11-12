@@ -1,0 +1,19 @@
+program StdTickCount;
+uses SysUtils;
+var
+  t0, t1, prev: Int64;
+  backwards: Boolean;
+begin
+  backwards := False;
+  t0 := GetTickCount;
+  prev := t0;
+  repeat
+    t1 := GetTickCount;
+    if t1 < prev then backwards := True;
+    prev := t1;
+  until t1 - t0 >= 20;
+  if backwards then
+    writeln('went backwards')
+  else
+    writeln('elapsed ok');
+end.

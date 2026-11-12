@@ -1,0 +1,30 @@
+program StdDeleteInsert;
+var
+  s: string;
+  short: string[6];
+begin
+  s := 'Hello, World';
+  Delete(s, 6, 1);
+  writeln('[', s, ']');
+  Delete(s, 6, 100);
+  writeln('[', s, ']');
+  Delete(s, 0, 2);
+  writeln('[', s, ']');
+  Delete(s, 9, 1);
+  writeln('[', s, ']');
+  Delete(s, 2, 0);
+  writeln('[', s, ']');
+  Insert(' there', s, 6);
+  writeln('[', s, ']');
+  Insert('>', s, 1);
+  writeln('[', s, ']');
+  Insert('!', s, 100);
+  writeln('[', s, ']');
+  Insert('X', s, -5);
+  writeln('[', s, ']');
+  Insert('c', s, 2);
+  writeln('[', s, ']');
+  short := 'abcd';
+  Insert('XYZ', short, 3);
+  writeln('[', short, ']');
+end.

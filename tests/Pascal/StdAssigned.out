@@ -1,0 +1,5 @@
+nil pointer: FALSE
+new pointer: TRUE
+nil procedure: FALSE
+procedure: TRUE
+hello
