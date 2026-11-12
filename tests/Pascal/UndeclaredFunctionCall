@@ -1,0 +1,7 @@
+program UndeclaredFunctionCall;
+var
+  x: integer;
+begin
+  x := bar(3); { no such function }
+  writeln(x);
+end.

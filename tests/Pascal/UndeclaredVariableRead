@@ -1,0 +1,5 @@
+program UndeclaredVariableRead;
+begin
+  writeln(1);
+  writeln(z); { never declared }
+end.

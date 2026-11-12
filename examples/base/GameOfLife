@@ -152,7 +152,6 @@ end;
 procedure RunSimulation;
 var
   key: Char;
-  startTick, elapsed: LongInt;
   i, j: Integer;
   r, c: Integer;
   filename, cellStr: String;
@@ -170,14 +169,9 @@ begin
       
       if not paused then
         begin
-          startTick := GetTickCount; // Platform-specific, fallback to random for portability 
-          
           NextGeneration(grid);
           Inc(generation);
-
-          elapsed := GetTickCount - startTick;
-          if speed > elapsed then
-            Delay(speed - elapsed);
+          Delay(speed);
         end;
 
       key := UpCase(ReadKey);
@@ -336,13 +330,14 @@ end;
 
 function CloneGrid(const src: GridType): GridType;
 var
-  i: Integer;
+  i, j: Integer;
 begin
   SetLength(Result, Length(src));
   for i := 0 to High(src) do
     begin
       SetLength(Result[i], cols);
-      Move(src[i][0], Result[i][0], cols * SizeOf(CellState));
+      for j := 0 to cols - 1 do
+        Result[i][j] := src[i][j];
     end;
 end;
 

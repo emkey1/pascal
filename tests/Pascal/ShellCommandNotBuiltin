@@ -1,0 +1,4 @@
+program ShellCommandNotBuiltin;
+begin
+  cat('notes.txt'); { a shell command, not a Pascal routine }
+end.
