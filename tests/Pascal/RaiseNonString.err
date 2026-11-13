@@ -1,0 +1,2 @@
+L4: raise needs a string message, not INTEGER.
+Compilation failed with errors.

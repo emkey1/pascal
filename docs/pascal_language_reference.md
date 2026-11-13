@@ -285,16 +285,19 @@ end;
 
 Current semantics:
 
-* `raise;` and `raise <expr>;` are accepted. When `<expr>` is a string literal,
-  a matching `except on E: Exception do ...` handler can read it back as
-  `E.Message`.
+* `raise <expr>;` takes a string or char expression (a literal, a variable, a
+  concatenation, a function result), and a matching `except on E: Exception
+  do ...` handler reads it back as `E.Message`. Any other value, or an
+  undeclared name, is a compile error. There are no exception classes, so
+  `raise Exception.Create('x')` is a compile error too; write `raise 'x'`.
+* A bare `raise;` inside a handler raises the exception being handled again,
+  with its message.
 * `try` handlers catch exceptions raised with Pascal `raise` in the same routine
   or in callees reached from the protected block.
 * The current syntax supports both `try ... except ... end;` and a single
   handler form `try ... except on E: Exception do ... end;`.
-* In a typed handler, `E.Message` is available for string-literal payloads
-  raised with `raise '...';`. Full exception-object semantics are not
-  implemented.
+* In a typed handler, `E.Message` is the string that was raised. Full
+  exception-object semantics are not implemented.
 * `finally` blocks and multi-handler typed dispatch are not implemented.
 * `try` / `except` is language-level control flow. It should not be treated as a
   general catch-all for arbitrary VM/runtime faults such as every nil dereference
@@ -363,6 +366,16 @@ begin
   ParseOrDefault := 42;
 end;
 ```
+
+A routine is declared once in its scope; there is no overloading. A second
+procedure or function of the same name in the same scope is a compile error
+naming both lines. A `forward` declaration followed by its body, and a unit's
+interface declaration followed by its implementation, are one routine. A
+routine nested inside another may reuse an outer routine's name.
+
+Every call must name a declared routine, a built-in, or a procedure or
+function variable; anything else is a compile error, including a call in a
+branch that never runs (`if false then ...`).
 
 ### **User-Defined Types**
 

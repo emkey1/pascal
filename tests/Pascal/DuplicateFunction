@@ -1,0 +1,15 @@
+program DuplicateFunction;
+
+function f(x: integer): integer;
+begin
+  f := 1;
+end;
+
+function f(s: string): integer; { a second f: no overloading }
+begin
+  f := 2;
+end;
+
+begin
+  writeln(f(1));
+end.

@@ -1,0 +1,8 @@
+program RaiseNonString;
+begin
+  try
+    raise 42;
+  except
+    on E: Exception do writeln(E.Message);
+  end;
+end.

@@ -1,0 +1,11 @@
+1 [from a variable]
+2 [concat from a variable]
+3 [code 42]
+4 [Q]
+5 caught inner
+5 re-raised [inner]
+6 finally
+6 [Fail: nested]
+7 no raise in round 1
+7 [round 2]
+8 [first then second]

@@ -1,0 +1,2 @@
+L4: raise needs a string message; 'exception' is undeclared or has no value.
+Compilation failed with errors.

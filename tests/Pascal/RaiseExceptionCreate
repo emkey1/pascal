@@ -1,0 +1,8 @@
+program RaiseExceptionCreate;
+begin
+  try
+    raise Exception.Create('x'); { PSCAL has no classes: raise takes a string }
+  except
+    on E: Exception do writeln(E.Message);
+  end;
+end.

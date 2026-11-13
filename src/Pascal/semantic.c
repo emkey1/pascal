@@ -619,14 +619,33 @@ static AST *desugarThrowNode(AST *node, VarType currentFunctionType, ThrowDesuga
     AST *expr = node->left;
     AST *messageExpr = NULL;
     node->left = NULL;
-    if (expr && expr->type == AST_STRING) {
+    if (!expr) {
+        /* A bare `raise;` re-raises: the pending message is kept. */
+        messageExpr = createVarRef("__pas_exc_message", TYPE_STRING, NULL, line);
+    } else if (expr->type == AST_STRING || expr->var_type == TYPE_STRING ||
+               expr->var_type == TYPE_CHAR) {
+        /* Any string or char expression is the message. Only a literal used
+         * to be kept: `raise s`, `raise 'a' + s` or a function's result was
+         * freed unevaluated, so E.Message was empty and a mistake in it was
+         * never reported. */
         messageExpr = expr;
         expr = NULL;
-    }
-    if (expr) {
+    } else {
+        if (expr->var_type == TYPE_UNKNOWN || expr->var_type == TYPE_VOID) {
+            /* No type: an undeclared name (`raise nosuch`, `raise foo.bar('x')`,
+             * `raise Exception.Create('x')`; PSCAL has no classes) or a
+             * procedure. Name the leftmost identifier. */
+            AST *head = expr;
+            while (head->left) head = head->left;
+            const char *name = (head->token && head->token->value) ? head->token->value : "?";
+            fprintf(stderr, "L%d: raise needs a string message; '%s' is undeclared or has no value.\n",
+                    line, name);
+        } else {
+            fprintf(stderr, "L%d: raise needs a string message, not %s.\n", line,
+                    varTypeToString(expr->var_type));
+        }
+        pascal_semantic_error_count++;
         freeAST(expr);
-    }
-    if (!messageExpr) {
         messageExpr = createStringLiteral("", TYPE_STRING, line);
     }
 

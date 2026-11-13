@@ -1,0 +1,88 @@
+program RaiseMessageForms;
+{ raise keeps any string or char expression as the message. }
+var
+  s: string;
+  c: char;
+  i: integer;
+
+function Describe(n: integer): string;
+begin
+  Describe := 'code ' + IntToStr(n);
+end;
+
+procedure Fail(const why: string);
+begin
+  raise 'Fail: ' + why;
+end;
+
+begin
+  s := 'from a variable';
+  try
+    raise s;
+  except
+    on E: Exception do writeln('1 [', E.Message, ']');
+  end;
+
+  try
+    raise 'con' + 'cat' + ' ' + s;
+  except
+    on E: Exception do writeln('2 [', E.Message, ']');
+  end;
+
+  try
+    raise Describe(42);
+  except
+    on E: Exception do writeln('3 [', E.Message, ']');
+  end;
+
+  c := 'Q';
+  try
+    raise c;
+  except
+    on E: Exception do writeln('4 [', E.Message, ']');
+  end;
+
+  try
+    try
+      raise 'inner';
+    except
+      on E: Exception do
+      begin
+        writeln('5 caught ', E.Message);
+        raise;
+      end;
+    end;
+  except
+    on E: Exception do writeln('5 re-raised [', E.Message, ']');
+  end;
+
+  try
+    try
+      Fail('nested');
+    finally
+      writeln('6 finally');
+    end;
+  except
+    on E: Exception do writeln('6 [', E.Message, ']');
+  end;
+
+  for i := 1 to 2 do
+  begin
+    try
+      if i = 2 then raise 'round ' + IntToStr(i);
+      writeln('7 no raise in round ', i);
+    except
+      on E: Exception do writeln('7 [', E.Message, ']');
+    end;
+  end;
+
+  try
+    try
+      raise 'first';
+    except
+      on E: Exception do raise E.Message + ' then second';
+    end;
+  except
+    on E: Exception do writeln('8 [', E.Message, ']');
+  end;
+end.

@@ -1,0 +1,12 @@
+program DuplicateAfterBody;
+
+procedure p;
+begin
+  writeln('p');
+end;
+
+procedure p; forward; { a forward declaration after the body }
+
+begin
+  p;
+end.

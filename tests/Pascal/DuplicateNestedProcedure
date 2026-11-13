@@ -1,0 +1,19 @@
+program DuplicateNestedProcedure;
+
+procedure Outer;
+  procedure Helper;
+  begin
+    writeln('one');
+  end;
+
+  procedure Helper; { the same name twice in Outer's scope }
+  begin
+    writeln('two');
+  end;
+begin
+  Helper;
+end;
+
+begin
+  Outer;
+end.

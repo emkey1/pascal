@@ -1,0 +1,30 @@
+program ForwardAndShadowing;
+{ A forward declaration and its body are one routine, and a nested routine
+  may reuse an outer routine's name. }
+
+procedure Later(k: integer); forward;
+
+procedure Show;
+begin
+  writeln('outer Show');
+end;
+
+procedure Caller;
+  procedure Show;
+  begin
+    writeln('nested Show');
+  end;
+begin
+  Show;
+  Later(1);
+end;
+
+procedure Later(k: integer);
+begin
+  writeln('Later ', k);
+end;
+
+begin
+  Caller;
+  Show;
+end.

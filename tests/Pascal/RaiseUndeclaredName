@@ -1,0 +1,8 @@
+program RaiseUndeclaredName;
+begin
+  try
+    raise foo.bar('x'); { foo is not declared }
+  except
+    on E: Exception do writeln(E.Message);
+  end;
+end.

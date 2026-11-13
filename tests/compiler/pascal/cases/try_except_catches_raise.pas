@@ -3,7 +3,7 @@ program TryExceptCatchesRaise;
 function ComputeMoveCount(shouldFail: boolean): integer;
 begin
   if shouldFail then
-    raise 1;
+    raise 'no moves';
   ComputeMoveCount := 3;
 end;
 

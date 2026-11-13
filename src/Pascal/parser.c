@@ -1800,6 +1800,22 @@ void addProcedure(Parser *parser, AST *proc_decl_ast_original, const char* unit_
     }
 
     Symbol* existing_sym = proc_table_param ? hashTableLookup(proc_table_param, name_for_table) : NULL;
+    if (existing_sym && existing_sym->is_defined) {
+        /* A second routine of this name in the same scope. Only a forward or
+         * interface declaration may come first (it is not yet defined); a
+         * routine with a body may not be declared again. Pascal has no
+         * overloading here: the later one used to replace the earlier
+         * silently, so every call went to whichever came last. */
+        int line = proc_decl_ast_original->token ? proc_decl_ast_original->token->line : 0;
+        int firstLine = (existing_sym->type_def && existing_sym->type_def->token)
+                            ? existing_sym->type_def->token->line : 0;
+        const char *kind = (proc_decl_ast_original->type == AST_FUNCTION_DECL) ? "function" : "procedure";
+        fprintf(stderr, "L%d: Duplicate %s '%s', already declared at L%d.\n",
+                line, kind, proc_name_original, firstLine);
+        pascal_parser_error_count++;
+        free(name_for_table);
+        return;
+    }
     if (existing_sym) {
         // An entry from the interface already exists. Update it with the implementation's AST.
         #ifdef DEBUG
