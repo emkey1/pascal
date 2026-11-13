@@ -1,0 +1,13 @@
+program UndeclaredCallInConstantBranch;
+const
+  Debug = false;
+begin
+  if false then
+    nosuchproc(1);
+  if Debug then
+    writeln(nosuchfn(2));
+  if true then
+    writeln('taken')
+  else
+    nosuchelse;
+end.

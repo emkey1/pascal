@@ -231,8 +231,13 @@ static AST* optimizeNode(AST* node) {
             if (isConst(node->left, &cond, &cf)) {
                 AST* taken = (cond != 0) ? node->right : node->extra;
                 AST* discard = (cond != 0) ? node->extra : node->right;
+                /* A branch that can never run is still compiled, so the
+                 * compiler checks it: `if false then nosuch(1)` must fail to
+                 * compile like any other call to an undeclared routine, not
+                 * vanish here. Only `if true then s` with no else, which
+                 * discards nothing, is folded. */
+                if (discard) break;
                 freeAST(node->left);
-                if (discard) freeAST(discard);
                 if (node->token) freeToken(node->token);
                 free(node);
                 return taken;
@@ -244,8 +249,8 @@ static AST* optimizeNode(AST* node) {
             if (isConst(node->left, &cond, &cf)) {
                 AST* taken = (cond != 0) ? node->right : node->extra;
                 AST* discard = (cond != 0) ? node->extra : node->right;
+                if (discard) break; /* compiled and checked, as for AST_IF */
                 freeAST(node->left);
-                if (discard) freeAST(discard);
                 if (node->token) freeToken(node->token);
                 free(node);
                 return taken;

@@ -1,0 +1,4 @@
+program UndeclaredCallInWriteln;
+begin
+  writeln(nosuchfn(3)); { a function call as a writeln argument }
+end.

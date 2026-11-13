@@ -1,0 +1,5 @@
+program UndeclaredCallNoParens;
+begin
+  writeln('start');
+  nosuchproc; { a procedure call with no parentheses }
+end.

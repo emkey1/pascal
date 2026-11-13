@@ -1,0 +1,52 @@
+program DeclaredCallForms;
+{ Every way a declared routine is called still compiles and runs. }
+type
+  TIntFn = function(x: integer): integer;
+var
+  f: TIntFn;
+  n: integer;
+
+procedure Later(k: integer); forward;
+
+function Twice(x: integer): integer;
+begin
+  Twice := x * 2;
+end;
+
+function Seven: integer;
+begin
+  Seven := 7;
+end;
+
+procedure Outer;
+  procedure Inner;
+  begin
+    writeln('inner');
+  end;
+begin
+  Inner;
+  Later(1);
+end;
+
+procedure Later(k: integer);
+begin
+  writeln('later ', k);
+end;
+
+begin
+  Outer;
+  f := @Twice;
+  writeln(f(4));
+  writeln(Twice(Seven));
+  writeln(Seven + 1);
+  n := length('abc');
+  writeln(n);
+  if false then
+    Later(2)
+  else
+    Later(3);
+  if true then
+    writeln('true branch');
+  if false then
+    writeln(Twice(Seven));
+end.

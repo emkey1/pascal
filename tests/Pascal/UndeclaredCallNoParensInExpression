@@ -1,0 +1,8 @@
+program UndeclaredCallNoParensInExpression;
+var
+  x: integer;
+begin
+  x := 1;
+  x := nosuchfn + x; { a function call with no parentheses }
+  writeln(x);
+end.

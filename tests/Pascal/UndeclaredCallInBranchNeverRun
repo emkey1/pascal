@@ -1,0 +1,6 @@
+program UndeclaredCallInBranchNeverRun;
+begin
+  writeln('start');
+  if paramcount > 99 then
+    writeln(strtoint('3')); { never runs, still a compile error }
+end.

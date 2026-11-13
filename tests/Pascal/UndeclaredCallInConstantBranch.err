@@ -1,0 +1,4 @@
+L6: Undefined procedure or function 'nosuchproc'.
+L8: Undefined procedure or function 'nosuchfn'.
+L12: Undefined procedure or function 'nosuchelse'.
+Compilation failed with errors.
