@@ -1,0 +1,7 @@
+program UsesCrtDelay;
+{ Crt's Delay takes a Word; an integer literal is a fine argument. }
+uses Crt;
+begin
+  Delay(5);
+  writeln('ok');
+end.

@@ -1,0 +1,26 @@
+program OrdinalParamConstRange;
+{ A constant out of the parameter's range compiles with Free Pascal's
+  warning and wraps. }
+type
+  TSmall = 1..10;
+
+procedure PW(w: Word);
+begin
+  writeln('w=', w);
+end;
+
+procedure PB(b: Byte);
+begin
+  writeln('b=', b);
+end;
+
+procedure PS(s: TSmall);
+begin
+  writeln('s=', s);
+end;
+
+begin
+  PW(70000);
+  PB(-1);
+  PS(11);
+end.

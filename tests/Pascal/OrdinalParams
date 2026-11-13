@@ -1,0 +1,40 @@
+program OrdinalParams;
+{ Any integer passes to a Byte, Word or subrange value parameter; a
+  variable's value wraps to the parameter's type, as in Free Pascal. }
+type
+  TSmall = 1..10;
+var
+  i: Integer;
+  big: LongInt;
+
+procedure PW(w: Word);
+begin
+  writeln('w=', w);
+end;
+
+procedure PB(b: Byte);
+begin
+  writeln('b=', b);
+end;
+
+procedure PS(s: TSmall);
+begin
+  writeln('s=', s);
+end;
+
+begin
+  PW(30);
+  PB(200);
+  PS(7);
+  i := 42;
+  PW(i);
+  PB(i);
+  PS(i);
+  big := 70000;
+  PW(big);
+  i := 300;
+  PB(i);
+  i := -1;
+  PW(i);
+  PW(i + 2);
+end.

@@ -42,7 +42,7 @@ begin
   for i := 1 to Length(a) do
     a[i] := Random(100) + 1;
 
-  quicksort(a, 1, Length(a));
+  quicksort(a, 0, Length(a) - 1);  { an open array is indexed from 0 }
   writeln('Sorted array:');
   for i := 1 to Length(a) do write(a[i]:4, ' ');
   writeln;

@@ -1,0 +1,46 @@
+program OpenArrayBase;
+{ An open-array parameter is indexed from 0 whatever the caller's bounds. }
+var
+  a: array[1..4] of Integer;
+  d: array of Integer;
+  i: Integer;
+
+procedure Show(const v: array of Integer);
+var
+  k: Integer;
+begin
+  write(Low(v), ' ', High(v), ' ', Length(v), ':');
+  for k := 0 to High(v) do
+    write(' ', v[k]);
+  writeln;
+end;
+
+procedure Bump(var v: array of Integer);
+var
+  k: Integer;
+begin
+  for k := Low(v) to High(v) do
+    v[k] := v[k] * 10;
+end;
+
+procedure Local(v: array of Integer);
+begin
+  v[0] := 99;
+  writeln('local ', v[0], ' ', High(v));
+end;
+
+begin
+  for i := 1 to 4 do
+    a[i] := i;
+  Show(a);
+  Bump(a);
+  Show(a);
+  Local(a);
+  Show(a);
+  writeln('a[1]=', a[1], ' a[4]=', a[4]);
+  SetLength(d, 3);
+  d[0] := 7; d[1] := 8; d[2] := 9;
+  Show(d);
+  Bump(d);
+  Show(d);
+end.

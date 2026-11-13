@@ -83,6 +83,8 @@ normalise_pascal_stderr() {
     mv "$path.clean" "$path"
     perl -ne 'print unless /Compiler warning: assigning .* may lose precision/' "$path" > "$path.clean"
     mv "$path.clean" "$path"
+    perl -ne 'print unless /Compiler warning: range check error while evaluating constants/' "$path" > "$path.clean"
+    mv "$path.clean" "$path"
 }
 
 run_pascal_ext_builtin_dump() {
